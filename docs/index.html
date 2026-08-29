@@ -1,748 +1,779 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
 
-<title>FINDME STORE / ヰ世界情緒</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    <title>FINDME STORE / ヰ世界情緒</title>
 
-body {
-    margin: 0;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-    background: #f5f5f5;
-    color: #222;
-}
+      body {
+        margin: 0;
 
-header {
-    background: white;
-    border-bottom: 1px solid #ddd;
-    padding: 24px;
-}
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
-.header-inner {
-    max-width: 1400px;
-    margin: auto;
-}
+        background: #f5f5f5;
+        color: #222;
+      }
 
-h1 {
-    margin: 0 0 8px;
-    font-size: 24px;
-}
+      header {
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+        padding: 24px;
+      }
 
-.info {
-    color: #777;
-    font-size: 14px;
-}
+      .header-inner {
+        max-width: 1400px;
+        margin: auto;
+      }
 
-.controls {
-    max-width: 1400px;
-    margin: 20px auto;
-    padding: 0 20px;
-}
+      h1 {
+        margin: 0 0 10px;
+        font-size: 24px;
+      }
 
-.search {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    background: white;
-}
+      .info {
+        color: #777;
+        font-size: 14px;
+      }
 
-.filter-row {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-}
+      .controls {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
 
-button,
-select {
-    padding: 9px 14px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background: white;
-    cursor: pointer;
-}
+      .search {
+        width: 100%;
+        padding: 14px 16px;
 
-button.active {
-    background: #222;
-    color: white;
-}
+        border: 1px solid #ccc;
 
-select {
-    font-size: 14px;
-}
+        border-radius: 8px;
 
-.tags {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-}
+        font-size: 16px;
+        background: #fff;
+      }
 
-.tag {
-    font-size: 12px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    background: #eee;
-}
+      .filter-row {
+        display: flex;
+        gap: 8px;
 
-main {
-    max-width: 1400px;
-    margin: auto;
-    padding: 0 20px 40px;
-}
+        flex-wrap: wrap;
 
-.count {
-    color: #777;
-    margin-bottom: 10px;
-}
+        margin-top: 12px;
+      }
 
-.products {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-}
+      button,
+      select {
+        padding: 9px 13px;
 
-.product {
-    display: grid;
-    grid-template-columns: 120px 1fr 150px 120px;
-    gap: 20px;
-    align-items: center;
+        border: 1px solid #ccc;
 
-    padding: 16px;
+        border-radius: 6px;
 
-    border-bottom: 1px solid #eee;
-}
+        background: #fff;
 
-.product:last-child {
-    border-bottom: none;
-}
+        cursor: pointer;
+      }
 
-.product-image {
-    width: 110px;
-    height: 110px;
-    object-fit: contain;
-    background: #fafafa;
-    border-radius: 6px;
-}
+      button:hover {
+        background: #f0f0f0;
+      }
 
-.product-title {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
+      button.active {
+        background: #222;
+        color: #fff;
+        border-color: #222;
+      }
 
-.product-title a {
-    color: inherit;
-    text-decoration: none;
-}
+      select {
+        font-size: 14px;
+      }
 
-.product-title a:hover {
-    text-decoration: underline;
-}
+      main {
+        max-width: 1400px;
+        margin: auto;
 
-.handle {
-    font-size: 12px;
-    color: #999;
-    margin-bottom: 8px;
-}
+        padding: 0 20px 40px;
+      }
 
-.price {
-    font-size: 16px;
-    font-weight: 600;
-}
+      .count {
+        color: #777;
+        margin-bottom: 10px;
+      }
 
-.status {
-    display: inline-block;
-    padding: 5px 9px;
-    border-radius: 5px;
-    font-size: 13px;
-    white-space: nowrap;
-}
+      .products {
+        background: #fff;
 
-.available {
-    background: #dff5df;
-    color: #176b17;
-}
+        border-radius: 8px;
 
-.soldout {
-    background: #eee;
-    color: #777;
-}
+        overflow: hidden;
+      }
 
-.tags {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-}
+      .product {
+        display: grid;
 
-.product-tags {
-    margin-top: 6px;
-}
+        grid-template-columns:
+          120px
+          minmax(200px, 1fr)
+          150px
+          120px;
 
-.no-results {
-    padding: 50px;
-    text-align: center;
-    color: #888;
-}
+        gap: 20px;
 
-@media (max-width: 800px) {
+        align-items: center;
 
-    header {
-        padding: 18px;
-    }
+        padding: 16px;
 
-    .controls,
-    main {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
+        border-bottom: 1px solid #eee;
+      }
 
-    .product {
-        grid-template-columns: 80px 1fr;
-        gap: 12px;
-    }
+      .product:last-child {
+        border-bottom: none;
+      }
 
-    .product-image {
-        width: 75px;
-        height: 75px;
-    }
+      .product-image {
+        width: 110px;
+        height: 110px;
 
-    .price,
-    .status {
-        grid-column: 2;
-    }
-}
-</style>
+        object-fit: contain;
 
-</head>
+        background: #fafafa;
 
-<body>
+        border-radius: 6px;
+      }
 
-<header>
-    <div class="header-inner">
+      .product-title {
+        font-size: 16px;
+        font-weight: 600;
+
+        margin-bottom: 5px;
+      }
+
+      .product-title a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .product-title a:hover {
+        text-decoration: underline;
+      }
+
+      .handle {
+        font-size: 12px;
+        color: #999;
+
+        margin-bottom: 8px;
+      }
+
+      .product-tags {
+        display: flex;
+
+        gap: 5px;
+
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        display: inline-block;
+
+        padding: 3px 7px;
+
+        border-radius: 4px;
+
+        background: #eee;
+
+        color: #666;
+
+        font-size: 12px;
+      }
+
+      .price {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .status {
+        display: inline-block;
+
+        padding: 5px 9px;
+
+        border-radius: 5px;
+
+        font-size: 13px;
+
+        white-space: nowrap;
+      }
+
+      .available {
+        background: #dff5df;
+        color: #176b17;
+      }
+
+      .soldout {
+        background: #eee;
+        color: #777;
+      }
+
+      .no-results {
+        padding: 60px 20px;
+
+        text-align: center;
+
+        color: #888;
+      }
+
+      .loading {
+        padding: 60px 20px;
+
+        text-align: center;
+
+        color: #888;
+      }
+
+      @media (max-width: 800px) {
+        header {
+          padding: 18px;
+        }
+
+        .controls,
+        main {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+
+        .product {
+          grid-template-columns: 80px 1fr;
+
+          gap: 12px;
+        }
+
+        .product-image {
+          width: 75px;
+          height: 75px;
+        }
+
+        .price {
+          grid-column: 2;
+        }
+
+        .status {
+          grid-column: 2;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="header-inner">
         <h1>FINDME STORE / ヰ世界情緒</h1>
 
         <div class="info">
-            最終更新:
-            <span id="updated">読み込み中...</span>
-           　
-            商品数:
-            <span id="total">-</span>
+          最終取得:
+          <span id="updated"> 読み込み中... </span>
+
+          &nbsp;&nbsp; 商品数:
+          <span id="total"> - </span>
         </div>
-    </div>
-</header>
+      </div>
+    </header>
 
-<section class="controls">
-
-    <input
+    <section class="controls">
+      <input
         id="search"
         class="search"
         type="search"
         placeholder="商品名・handle・タグで検索..."
-    >
+      />
 
-    <div class="filter-row">
+      <div class="filter-row">
+        <button class="status-filter active" data-status="all">すべて</button>
 
-        <button
-            class="status-filter active"
-            data-status="all"
-        >
-            すべて
-        </button>
+        <button class="status-filter" data-status="available">🟢 販売中</button>
 
-        <button
-            class="status-filter"
-            data-status="available"
-        >
-            🟢 販売中
-        </button>
-
-        <button
-            class="status-filter"
-            data-status="soldout"
-        >
-            🔴 Sold out
-        </button>
+        <button class="status-filter" data-status="soldout">🔴 Sold out</button>
 
         <select id="sort">
-            <option value="default">
-                デフォルト順
-            </option>
+          <option value="default">デフォルト順</option>
 
-            <option value="price-asc">
-                価格が安い順
-            </option>
+          <option value="price-asc">価格が安い順</option>
 
-            <option value="price-desc">
-                価格が高い順
-            </option>
+          <option value="price-desc">価格が高い順</option>
 
-            <option value="title-asc">
-                商品名 A→Z
-            </option>
+          <option value="title-asc">商品名 A→Z</option>
 
-            <option value="title-desc">
-                商品名 Z→A
-            </option>
+          <option value="title-desc">商品名 Z→A</option>
         </select>
+      </div>
 
-    </div>
+      <div id="tagFilters" class="filter-row"></div>
+    </section>
 
-    <div id="tagFilters" class="filter-row"></div>
-
-</section>
-
-<main>
-
-    <div class="count">
+    <main>
+      <div class="count">
         表示:
-        <span id="visibleCount">-</span>
+        <span id="visibleCount"> - </span>
         商品
-    </div>
+      </div>
 
-    <div id="products" class="products"></div>
+      <div id="products" class="products">
+        <div class="loading">商品データを読み込んでいます...</div>
+      </div>
+    </main>
 
-</main>
+    <script>
+      let allProducts = [];
 
-<script>
+      let currentStatus = "all";
 
-let allProducts = [];
-let currentStatus = "all";
-let currentTag = "all";
+      let currentTag = "all";
 
-async function loadProducts() {
+      /*
+============================================================
+HTML escape
+============================================================
+*/
 
-    try {
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
-        const response = await fetch(
-            "../data/products.json?" + Date.now()
-        );
+      /*
+============================================================
+Load JSON
+============================================================
+*/
 
-        if (!response.ok) {
-            throw new Error(
-                "HTTP " + response.status
-            );
+      async function loadProducts() {
+        try {
+          const response = await fetch("./data/products.json?" + Date.now());
+
+          if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+          }
+
+          const data = await response.json();
+
+          /*
+        新形式
+        {
+            updated_at,
+            product_count,
+            products
         }
+        */
 
-        const data = await response.json();
+          if (data.products && typeof data.products === "object") {
+            allProducts = Object.values(data.products);
 
-        allProducts = Object.values(data);
+            if (data.updated_at) {
+              document.getElementById("updated").textContent = new Date(
+                data.updated_at,
+              ).toLocaleString("ja-JP");
+            }
+          } else if (typeof data === "object") {
+            /*
+        念のため旧形式にも対応
+        */
+            allProducts = Object.values(data);
 
-        document.getElementById("total")
-            .textContent = allProducts.length;
+            document.getElementById("updated").textContent = "不明";
+          }
 
-        document.getElementById("updated")
-            .textContent = new Date()
-            .toLocaleString("ja-JP");
+          document.getElementById("total").textContent = allProducts.length;
 
-        buildTagFilters();
+          buildTagFilters();
 
-        render();
+          render();
+        } catch (error) {
+          console.error(error);
 
-    } catch (error) {
+          document.getElementById("products").innerHTML = `
 
-        document.getElementById("products")
-            .innerHTML = `
                 <div class="no-results">
+
                     商品データの読み込みに失敗しました。
-                    <br>
+
+                    <br><br>
+
                     ${escapeHtml(error.message)}
+
                 </div>
+
             `;
-    }
-}
+        }
+      }
 
+      /*
+============================================================
+Tags
+============================================================
+*/
 
-function escapeHtml(value) {
+      function buildTagFilters() {
+        const tags = new Set();
 
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-
-function buildTagFilters() {
-
-    const tags = new Set();
-
-    allProducts.forEach(product => {
-
-        (product.tags || []).forEach(tag => {
-            tags.add(tag);
+        allProducts.forEach((product) => {
+          (product.tags || []).forEach((tag) => tags.add(tag));
         });
 
-    });
+        const container = document.getElementById("tagFilters");
 
-    const container =
-        document.getElementById("tagFilters");
+        container.innerHTML = "";
 
-    container.innerHTML = "";
+        const allButton = document.createElement("button");
 
-    const allButton =
-        document.createElement("button");
-
-    allButton.textContent = "全タグ";
-
-    allButton.classList.add("active");
-
-    allButton.onclick = () => {
-
-        currentTag = "all";
-
-        document
-            .querySelectorAll("#tagFilters button")
-            .forEach(button =>
-                button.classList.remove("active")
-            );
+        allButton.textContent = "全タグ";
 
         allButton.classList.add("active");
 
-        render();
-    };
+        allButton.onclick = () => {
+          currentTag = "all";
 
-    container.appendChild(allButton);
+          document
+            .querySelectorAll("#tagFilters button")
+            .forEach((button) => button.classList.remove("active"));
 
-    [...tags]
-        .sort((a, b) => a.localeCompare(b))
-        .forEach(tag => {
+          allButton.classList.add("active");
 
-            const button =
-                document.createElement("button");
+          render();
+        };
+
+        container.appendChild(allButton);
+
+        [...tags]
+          .sort((a, b) => a.localeCompare(b, "ja"))
+          .forEach((tag) => {
+            const button = document.createElement("button");
 
             button.textContent = tag;
 
             button.onclick = () => {
+              currentTag = tag;
 
-                currentTag = tag;
+              document
+                .querySelectorAll("#tagFilters button")
+                .forEach((button) => button.classList.remove("active"));
 
-                document
-                    .querySelectorAll("#tagFilters button")
-                    .forEach(button =>
-                        button.classList.remove("active")
-                    );
+              button.classList.add("active");
 
-                button.classList.add("active");
-
-                render();
+              render();
             };
 
             container.appendChild(button);
-        });
-}
+          });
+      }
 
+      /*
+============================================================
+Availability
+============================================================
+*/
 
-function isAvailable(product) {
-
-    return (product.variants || [])
-        .some(variant =>
-            variant.available === true
+      function isAvailable(product) {
+        return (product.variants || []).some(
+          (variant) => variant.available === true,
         );
-}
+      }
 
+      /*
+============================================================
+Price
+============================================================
+*/
 
-function getPrice(product) {
+      function getPrice(product) {
+        const prices = (product.variants || [])
+          .map((variant) => Number(variant.price))
+          .filter((price) => Number.isFinite(price));
 
-    const prices = (product.variants || [])
-        .map(variant =>
-            Number(variant.price)
-        )
-        .filter(price =>
-            Number.isFinite(price)
-        );
-
-    if (!prices.length) {
-        return null;
-    }
-
-    return Math.min(...prices);
-}
-
-
-function formatPrice(product) {
-
-    const price = getPrice(product);
-
-    if (price === null) {
-        return "価格不明";
-    }
-
-    return price.toLocaleString("ja-JP") + " 円";
-}
-
-
-function render() {
-
-    const search =
-        document.getElementById("search")
-            .value
-            .trim()
-            .toLowerCase();
-
-    const sort =
-        document.getElementById("sort")
-            .value;
-
-    let products =
-        [...allProducts];
-
-    products = products.filter(product => {
-
-        const available =
-            isAvailable(product);
-
-        if (
-            currentStatus === "available"
-            && !available
-        ) {
-            return false;
+        if (!prices.length) {
+          return null;
         }
 
-        if (
-            currentStatus === "soldout"
-            && available
-        ) {
-            return false;
+        return Math.min(...prices);
+      }
+
+      function formatPrice(product) {
+        const price = getPrice(product);
+
+        if (price === null) {
+          return "価格不明";
         }
 
-        if (
-            currentTag !== "all"
-            && !(product.tags || [])
-                .includes(currentTag)
-        ) {
+        return price.toLocaleString("ja-JP") + " 円";
+      }
+
+      /*
+============================================================
+Render
+============================================================
+*/
+
+      function render() {
+        const search = document
+          .getElementById("search")
+          .value.trim()
+          .toLowerCase();
+
+        const sort = document.getElementById("sort").value;
+
+        let products = [...allProducts];
+
+        /*
+    Filter
+    */
+
+        products = products.filter((product) => {
+          const available = isAvailable(product);
+
+          if (currentStatus === "available" && !available) {
             return false;
-        }
+          }
 
-        if (search) {
+          if (currentStatus === "soldout" && available) {
+            return false;
+          }
 
+          if (
+            currentTag !== "all" &&
+            !(product.tags || []).includes(currentTag)
+          ) {
+            return false;
+          }
+
+          if (search) {
             const text = [
-                product.title,
-                product.handle,
-                ...(product.tags || [])
+              product.title,
+
+              product.handle,
+
+              ...(product.tags || []),
             ]
-            .join(" ")
-            .toLowerCase();
+              .join(" ")
+              .toLowerCase();
 
             if (!text.includes(search)) {
-                return false;
+              return false;
             }
+          }
+
+          return true;
+        });
+
+        /*
+    Sort
+    */
+
+        products.sort((a, b) => {
+          if (sort === "price-asc") {
+            return (getPrice(a) ?? Infinity) - (getPrice(b) ?? Infinity);
+          }
+
+          if (sort === "price-desc") {
+            return (getPrice(b) ?? -Infinity) - (getPrice(a) ?? -Infinity);
+          }
+
+          if (sort === "title-asc") {
+            return (a.title || "").localeCompare(b.title || "", "ja");
+          }
+
+          if (sort === "title-desc") {
+            return (b.title || "").localeCompare(a.title || "", "ja");
+          }
+
+          return 0;
+        });
+
+        /*
+    Count
+    */
+
+        document.getElementById("visibleCount").textContent = products.length;
+
+        /*
+    Empty
+    */
+
+        if (!products.length) {
+          document.getElementById("products").innerHTML = `
+
+                <div class="no-results">
+
+                    条件に一致する商品がありません。
+
+                </div>
+
+            `;
+
+          return;
         }
 
-        return true;
-    });
+        /*
+    Product HTML
+    */
 
-
-    products.sort((a, b) => {
-
-        if (sort === "price-asc") {
-
-            return (
-                (getPrice(a) ?? Infinity)
-                -
-                (getPrice(b) ?? Infinity)
-            );
-        }
-
-        if (sort === "price-desc") {
-
-            return (
-                (getPrice(b) ?? -Infinity)
-                -
-                (getPrice(a) ?? -Infinity)
-            );
-        }
-
-        if (sort === "title-asc") {
-
-            return (a.title || "")
-                .localeCompare(
-                    b.title || "",
-                    "ja"
-                );
-        }
-
-        if (sort === "title-desc") {
-
-            return (b.title || "")
-                .localeCompare(
-                    a.title || "",
-                    "ja"
-                );
-        }
-
-        return 0;
-    });
-
-
-    document.getElementById("visibleCount")
-        .textContent = products.length;
-
-
-    const container =
-        document.getElementById("products");
-
-    if (!products.length) {
-
-        container.innerHTML = `
-            <div class="no-results">
-                条件に一致する商品がありません。
-            </div>
-        `;
-
-        return;
-    }
-
-
-    container.innerHTML =
-        products.map(product => {
-
-            const available =
-                isAvailable(product);
+        document.getElementById("products").innerHTML = products
+          .map((product) => {
+            const available = isAvailable(product);
 
             const image =
-                product.images &&
-                product.images.length
-                    ? product.images[0]
-                    : "";
+              product.images && product.images.length ? product.images[0] : "";
 
-            const tags =
-                (product.tags || [])
-                    .map(tag =>
-                        `<span class="tag">
-                            ${escapeHtml(tag)}
-                        </span>`
-                    )
-                    .join("");
-
+            const tags = (product.tags || [])
+              .map(
+                (tag) =>
+                  `
+                            <span class="tag">
+                                ${escapeHtml(tag)}
+                            </span>
+                            `,
+              )
+              .join("");
 
             return `
+
                 <article class="product">
 
+
                     <div>
+
                         ${
-                            image
+                          image
                             ? `
+
                             <img
                                 class="product-image"
                                 src="${escapeHtml(image)}"
                                 alt="${escapeHtml(product.title)}"
                                 loading="lazy"
                             >
+
                             `
                             : ""
                         }
+
                     </div>
 
+
                     <div>
+
 
                         <div class="product-title">
 
                             <a
                                 href="${escapeHtml(product.url)}"
                                 target="_blank"
-                                rel="noopener"
+                                rel="noopener noreferrer"
                             >
+
                                 ${escapeHtml(product.title)}
+
                             </a>
 
                         </div>
 
+
                         <div class="handle">
+
                             ${escapeHtml(product.handle)}
+
                         </div>
 
-                        <div class="product-tags tags">
+
+                        <div class="product-tags">
+
                             ${tags}
+
                         </div>
+
 
                     </div>
+
 
                     <div class="price">
+
                         ${formatPrice(product)}
+
                     </div>
+
 
                     <div>
+
                         <span class="
                             status
-                            ${available
-                                ? "available"
-                                : "soldout"}
+                            ${available ? "available" : "soldout"}
                         ">
-                            ${
-                                available
-                                ? "🟢 販売中"
-                                : "🔴 Sold out"
-                            }
+
+                            ${available ? "🟢 販売中" : "🔴 Sold out"}
+
                         </span>
+
                     </div>
 
+
                 </article>
-            `;
 
-        }).join("");
-}
+                `;
+          })
+          .join("");
+      }
 
+      /*
+============================================================
+ Search
+============================================================
+*/
 
-document
-    .getElementById("search")
-    .addEventListener(
-        "input",
-        render
-    );
+      document.getElementById("search").addEventListener("input", render);
 
+      /*
+============================================================
+ Sort
+============================================================
+*/
 
-document
-    .getElementById("sort")
-    .addEventListener(
-        "change",
-        render
-    );
+      document.getElementById("sort").addEventListener("change", render);
 
+      /*
+============================================================
+ Status filter
+============================================================
+*/
 
-document
-    .querySelectorAll(".status-filter")
-    .forEach(button => {
+      document.querySelectorAll(".status-filter").forEach((button) => {
+        button.addEventListener("click", () => {
+          currentStatus = button.dataset.status;
 
-        button.addEventListener(
-            "click",
-            () => {
+          document
+            .querySelectorAll(".status-filter")
+            .forEach((button) => button.classList.remove("active"));
 
-                currentStatus =
-                    button.dataset.status;
+          button.classList.add("active");
 
-                document
-                    .querySelectorAll(".status-filter")
-                    .forEach(button =>
-                        button.classList.remove("active")
-                    );
+          render();
+        });
+      });
 
-                button.classList.add("active");
+      /*
+============================================================
+ Start
+============================================================
+*/
 
-                render();
-            }
-        );
-
-    });
-
-
-loadProducts();
-
-</script>
-
-</body>
+      loadProducts();
+    </script>
+  </body>
 </html>

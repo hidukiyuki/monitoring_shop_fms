@@ -2,49 +2,81 @@ import csv
 import json
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 
 
-BASE_URL = "https://findmestore.thinkr.jp/collections/isekaijoucho/products.json"
+# ============================================================
+# Settings
+# ============================================================
+
+BASE_URL = (
+    "https://findmestore.thinkr.jp/"
+    "collections/isekaijoucho/products.json"
+)
 
 PAGES = [1, 2]
 
 STORE_BASE = "https://findmestore.thinkr.jp"
 
 DATA_DIR = Path("data")
+
 JSON_PATH = DATA_DIR / "products.json"
 CSV_PATH = DATA_DIR / "products.csv"
 
-# 前回の商品数に対して、これ以下まで急減したら異常扱い
+# GitHub Pages用
+PAGES_DATA_DIR = Path("docs/data")
+PAGES_JSON_PATH = PAGES_DATA_DIR / "products.json"
+
+# 前回の商品数に対して、これ未満になったら異常扱い
 MIN_COUNT_RATIO = 0.5
 
 TIMEOUT = 30
 
-DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+DISCORD_WEBHOOK = os.environ.get(
+    "DISCORD_WEBHOOK",
+    "",
+)
 
+
+# ============================================================
+# HTTP
+# ============================================================
 
 def fetch_page(page):
-    url = BASE_URL
-
     print(f"Fetching page={page}")
 
     response = requests.get(
-        url,
+        BASE_URL,
         params={
             "limit": 250,
             "page": page,
         },
         timeout=TIMEOUT,
         headers={
-            # "User-Agent": "Mozilla/5.0 (compatible; ShopMonitor/1.0)"
+            "User-Agent": (
+                "Mozilla/5.0 "
+                "(compatible; FINDME-Store-Monitor/1.0)"
+            ),
+            "Accept": "application/json",
         },
     )
 
     response.raise_for_status()
 
-    data = response.json()
+    if not response.content:
+        raise RuntimeError(
+            f"page={page}: empty HTTP response"
+        )
+
+    try:
+        data = response.json()
+    except ValueError as e:
+        raise RuntimeError(
+            f"page={page}: invalid JSON response: {e}"
+        )
 
     if not isinstance(data, dict):
         raise RuntimeError(
@@ -58,12 +90,27 @@ def fetch_page(page):
             f"page={page}: products is not a list"
         )
 
-    print(f"page={page}: {len(products)} products")
+    if len(products) == 0:
+        raise RuntimeError(
+            f"page={page}: empty products response"
+        )
+
+    print(
+        f"page={page}: "
+        f"{len(products)} products"
+    )
 
     return products
 
 
+# ============================================================
+# Normalize
+# ============================================================
+
 def normalize_product(product):
+    if not isinstance(product, dict):
+        return None
+
     handle = product.get("handle")
 
     if not handle:
@@ -74,20 +121,38 @@ def normalize_product(product):
     normalized_variants = []
 
     for variant in variants:
-        normalized_variants.append({
-            "id": variant.get("id"),
-            "title": variant.get("title"),
-            "price": variant.get("price"),
-            "available": variant.get("available"),
-        })
+        if not isinstance(variant, dict):
+            continue
+
+        normalized_variants.append(
+            {
+                "id": variant.get("id"),
+                "title": variant.get("title"),
+                "price": variant.get("price"),
+                "available": variant.get("available"),
+            }
+        )
 
     images = []
 
     for image in product.get("images") or []:
+        if not isinstance(image, dict):
+            continue
+
         src = image.get("src")
 
         if src:
             images.append(src)
+
+    tags = product.get("tags") or []
+
+    if not isinstance(tags, list):
+        tags = []
+
+    tags = [
+        str(tag)
+        for tag in tags
+    ]
 
     return {
         "id": product.get("id"),
@@ -95,8 +160,10 @@ def normalize_product(product):
         "title": product.get("title"),
         "vendor": product.get("vendor"),
         "product_type": product.get("product_type"),
-        "tags": sorted(product.get("tags") or []),
-        "url": f"{STORE_BASE}/products/{handle}",
+        "tags": sorted(tags),
+        "url": (
+            f"{STORE_BASE}/products/{handle}"
+        ),
         "images": images,
         "variants": normalized_variants,
     }
@@ -113,24 +180,61 @@ def build_products(raw_products):
 
         handle = normalized["handle"]
 
-        # 同じhandleが複数回出ても1商品にまとめる
+        # handleをキーとして重複排除
         products[handle] = normalized
 
-    return dict(sorted(products.items()))
+    return dict(
+        sorted(products.items())
+    )
 
+
+# ============================================================
+# Previous data
+# ============================================================
 
 def load_previous():
     if not JSON_PATH.exists():
+        print(
+            "No previous JSON. "
+            "Treating as first run."
+        )
+        return {}
+
+    # 空ファイル
+    if JSON_PATH.stat().st_size == 0:
+        print(
+            "Previous JSON is empty. "
+            "Treating as first run."
+        )
         return {}
 
     try:
-        with JSON_PATH.open("r", encoding="utf-8") as f:
-            data = json.load(f)
+        with JSON_PATH.open(
+            "r",
+            encoding="utf-8",
+        ) as f:
+            content = f.read().strip()
+
+        if not content:
+            print(
+                "Previous JSON contains no data. "
+                "Treating as first run."
+            )
+            return {}
+
+        data = json.loads(content)
 
         if not isinstance(data, dict):
-            raise RuntimeError("previous JSON is not an object")
+            raise RuntimeError(
+                "previous JSON is not an object"
+            )
 
         return data
+
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"previous JSON is invalid JSON: {e}"
+        )
 
     except Exception as e:
         raise RuntimeError(
@@ -138,21 +242,63 @@ def load_previous():
         )
 
 
-def save_json(products):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+# ============================================================
+# Save JSON
+# ============================================================
 
-    with JSON_PATH.open("w", encoding="utf-8") as f:
+def atomic_write_json(path, data):
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    temp_path = path.with_suffix(
+        path.suffix + ".tmp"
+    )
+
+    with temp_path.open(
+        "w",
+        encoding="utf-8",
+    ) as f:
         json.dump(
-            products,
+            data,
             f,
             ensure_ascii=False,
             indent=2,
             sort_keys=True,
         )
 
+        f.write("\n")
+
+    temp_path.replace(path)
+
+
+def save_json(products):
+    atomic_write_json(
+        JSON_PATH,
+        products,
+    )
+
+
+def save_pages_json(products):
+    atomic_write_json(
+        PAGES_JSON_PATH,
+        {
+            "updated_at": datetime.now(
+                timezone.utc
+            ).isoformat(),
+            "product_count": len(products),
+            "products": products,
+        },
+    )
+
+
+# ============================================================
+# CSV
+# ============================================================
 
 def variant_summary(product):
-    variants = product.get("variants", [])
+    variants = product.get("variants") or []
 
     if not variants:
         return {
@@ -164,24 +310,31 @@ def variant_summary(product):
     available = False
 
     for variant in variants:
-        price = variant.get("price")
+        if not isinstance(variant, dict):
+            continue
 
-        if price is not None:
-            prices.append(str(price))
+        value = variant.get("price")
+
+        if value is not None:
+            prices.append(
+                str(value)
+            )
 
         if variant.get("available") is True:
             available = True
 
-    price = ""
+    unique_prices = sorted(
+        set(prices)
+    )
 
-    if prices:
-        # 同一価格なら1つだけ
-        unique_prices = sorted(set(prices))
-
-        if len(unique_prices) == 1:
-            price = unique_prices[0]
-        else:
-            price = " / ".join(unique_prices)
+    if len(unique_prices) == 1:
+        price = unique_prices[0]
+    elif unique_prices:
+        price = " / ".join(
+            unique_prices
+        )
+    else:
+        price = ""
 
     return {
         "price": price,
@@ -190,30 +343,45 @@ def variant_summary(product):
 
 
 def product_row(product):
-    summary = variant_summary(product)
+    summary = variant_summary(
+        product
+    )
+
+    images = product.get("images") or []
 
     return {
-        "handle": product.get("handle", ""),
-        "title": product.get("title", ""),
+        "handle": product.get(
+            "handle",
+            "",
+        ),
+        "title": product.get(
+            "title",
+            "",
+        ),
         "price": summary["price"],
-        "available": summary["available"],
-        "tags": ", ".join(product.get("tags", [])),
-        "url": product.get("url", ""),
+        "available": summary[
+            "available"
+        ],
+        "tags": ", ".join(
+            product.get("tags") or []
+        ),
+        "url": product.get(
+            "url",
+            "",
+        ),
         "image": (
-            product.get("images", [""])[0]
-            if product.get("images")
+            images[0]
+            if images
             else ""
         ),
     }
 
 
 def save_csv(products):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    rows = [
-        product_row(product)
-        for product in products.values()
-    ]
+    DATA_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     fieldnames = [
         "handle",
@@ -225,11 +393,17 @@ def save_csv(products):
         "image",
     ]
 
+    rows = [
+        product_row(product)
+        for product in products.values()
+    ]
+
     with CSV_PATH.open(
         "w",
         encoding="utf-8-sig",
         newline="",
     ) as f:
+
         writer = csv.DictWriter(
             f,
             fieldnames=fieldnames,
@@ -238,297 +412,132 @@ def save_csv(products):
         writer.writeheader()
         writer.writerows(rows)
 
-def save_html(products):
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-    rows = []
-
-    for product in products.values():
-        summary = variant_summary(product)
-
-        title = product.get("title", "")
-        handle = product.get("handle", "")
-        url = product.get("url", "")
-        image = (
-            product.get("images", [""])[0]
-            if product.get("images")
-            else ""
-        )
-        tags = ", ".join(product.get("tags", []))
-        price_value = summary["price"]
-        available = summary["available"]
-
-        status_text = "販売中" if available else "Sold out"
-
-        image_html = ""
-
-        if image:
-            image_html = f'''
-                <img
-                    src="{image}"
-                    alt="{title}"
-                    loading="lazy"
-                >
-            '''
-
-        rows.append(f"""
-        <tr>
-            <td class="image">
-                {image_html}
-            </td>
-            <td>
-                <a href="{url}" target="_blank">
-                    {title}
-                </a>
-                <div class="handle">{handle}</div>
-            </td>
-            <td>
-                {price_value or "不明"} 円
-            </td>
-            <td>
-                <span class="status {'available' if available else 'soldout'}">
-                    {status_text}
-                </span>
-            </td>
-            <td>
-                {tags}
-            </td>
-        </tr>
-        """)
-
-    html = f"""<!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>FINDME STORE / ヰ世界情緒</title>
-
-<style>
-
-body {{
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-    margin: 0;
-    padding: 24px;
-
-    background: #f5f5f5;
-    color: #222;
-}}
-
-.container {{
-    max-width: 1400px;
-    margin: auto;
-}}
-
-h1 {{
-    margin-bottom: 8px;
-}}
-
-.info {{
-    color: #666;
-    margin-bottom: 20px;
-}}
-
-table {{
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-}}
-
-th,
-td {{
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-    vertical-align: middle;
-}}
-
-th {{
-    background: #eee;
-    position: sticky;
-    top: 0;
-}}
-
-.image {{
-    width: 120px;
-}}
-
-.image img {{
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-}}
-
-.handle {{
-    color: #888;
-    font-size: 12px;
-    margin-top: 5px;
-}}
-
-.status {{
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 13px;
-}}
-
-.available {{
-    background: #dff5df;
-    color: #176b17;
-}}
-
-.soldout {{
-    background: #eee;
-    color: #777;
-}}
-
-@media (max-width: 800px) {{
-
-    body {{
-        padding: 10px;
-    }}
-
-    table {{
-        font-size: 13px;
-    }}
-
-    th,
-    td {{
-        padding: 7px;
-    }}
-
-    .image {{
-        width: 70px;
-    }}
-
-    .image img {{
-        width: 60px;
-        height: 60px;
-    }}
-
-}}
-
-</style>
-
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>FINDME STORE / ヰ世界情緒</h1>
-
-<div class="info">
-商品数: {len(products)}
-<br>
-最終更新: {__import__("datetime").datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-</div>
-
-<table>
-
-<thead>
-<tr>
-    <th>画像</th>
-    <th>商品</th>
-    <th>価格</th>
-    <th>状態</th>
-    <th>タグ</th>
-</tr>
-</thead>
-
-<tbody>
-
-{"".join(rows)}
-
-</tbody>
-
-</table>
-
-</div>
-
-</body>
-</html>
-"""
-
-    with (DATA_DIR / "products.html").open(
-        "w",
-        encoding="utf-8",
-    ) as f:
-        f.write(html)
-
-def status(product):
-    return (
-        "販売中"
-        if variant_summary(product)["available"]
-        else "Sold out"
-    )
-
-
-def price(product):
-    return variant_summary(product)["price"]
-
+# ============================================================
+# Comparison
+# ============================================================
 
 def compare(previous, current):
-    previous_keys = set(previous)
-    current_keys = set(current)
+    previous_keys = set(
+        previous.keys()
+    )
 
-    added = sorted(current_keys - previous_keys)
-    removed = sorted(previous_keys - current_keys)
+    current_keys = set(
+        current.keys()
+    )
 
-    changed = []
+    added = sorted(
+        current_keys - previous_keys
+    )
+
+    removed = sorted(
+        previous_keys - current_keys
+    )
+
     stock_changed = []
     price_changed = []
+    changed = []
 
-    for handle in sorted(previous_keys & current_keys):
+    for handle in sorted(
+        previous_keys & current_keys
+    ):
         old = previous[handle]
         new = current[handle]
 
-        old_summary = variant_summary(old)
-        new_summary = variant_summary(new)
+        old_summary = variant_summary(
+            old
+        )
 
-        if old_summary["available"] != new_summary["available"]:
-            stock_changed.append(handle)
+        new_summary = variant_summary(
+            new
+        )
 
-        if old_summary["price"] != new_summary["price"]:
-            price_changed.append(handle)
+        if (
+            old_summary["available"]
+            != new_summary["available"]
+        ):
+            stock_changed.append(
+                handle
+            )
 
-        # 商品情報そのものの変更
+        if (
+            old_summary["price"]
+            != new_summary["price"]
+        ):
+            price_changed.append(
+                handle
+            )
+
         if old != new:
-            changed.append(handle)
+            changed.append(
+                handle
+            )
 
     return {
         "added": added,
         "removed": removed,
-        "changed": changed,
         "stock_changed": stock_changed,
         "price_changed": price_changed,
+        "changed": changed,
     }
 
 
+# ============================================================
+# Display
+# ============================================================
+
+def status(product):
+    if variant_summary(
+        product
+    )["available"]:
+        return "販売中"
+
+    return "Sold out"
+
+
+def price(product):
+    return variant_summary(
+        product
+    )["price"]
+
+
 def product_line(product):
+    price_text = price(product)
+
+    if price_text:
+        price_text += "円"
+    else:
+        price_text = "価格不明"
+
     return (
         f"・{product.get('title', '(no title)')} "
-        f"| {price(product) or '価格不明'}円 "
+        f"| {price_text} "
         f"| {status(product)}"
     )
 
 
+# ============================================================
+# Discord
+# ============================================================
+
 def send_discord(content):
     if not DISCORD_WEBHOOK:
-        print("DISCORD_WEBHOOK is not configured")
+        print(
+            "DISCORD_WEBHOOK is not configured."
+        )
         return
+
+    # Discord content上限を考慮
+    if len(content) > 1900:
+        content = (
+            content[:1850]
+            + "\n\n…以下省略"
+        )
 
     response = requests.post(
         DISCORD_WEBHOOK,
         json={
-            "content": content[:1900],
+            "content": content,
         },
         timeout=30,
     )
@@ -537,76 +546,120 @@ def send_discord(content):
 
 
 def send_error(message):
-    print(f"ERROR: {message}", file=sys.stderr)
+    print(
+        f"ERROR: {message}",
+        file=sys.stderr,
+    )
 
-    if DISCORD_WEBHOOK:
-        try:
-            send_discord(
-                "🚨 **FINDME STORE監視エラー**\n\n"
-                f"{message}"
-            )
-        except Exception as e:
-            print(
-                f"Discord error notification failed: {e}",
-                file=sys.stderr,
-            )
+    if not DISCORD_WEBHOOK:
+        return
+
+    try:
+        send_discord(
+            "🚨 **FINDME STORE監視エラー**\n\n"
+            f"{message}"
+        )
+    except Exception as e:
+        print(
+            "Discord error notification "
+            f"failed: {e}",
+            file=sys.stderr,
+        )
 
 
-def build_notification(previous, current, diff):
+def build_notification(
+    previous,
+    current,
+    diff,
+):
     messages = []
 
     added = diff["added"]
     removed = diff["removed"]
-    stock_changed = diff["stock_changed"]
-    price_changed = diff["price_changed"]
+    stock_changed = diff[
+        "stock_changed"
+    ]
+    price_changed = diff[
+        "price_changed"
+    ]
 
-    # 新規
+    # 新商品
     if added:
-        messages.append("🆕 **新商品**")
+        messages.append(
+            "🆕 **新商品**"
+        )
 
         for handle in added:
+            product = current[handle]
+
             messages.append(
-                product_line(current[handle])
+                product_line(product)
+            )
+
+            messages.append(
+                f"  {product.get('url', '')}"
             )
 
     # 削除
     if removed:
-        messages.append("\n🗑️ **商品削除**")
+        messages.append(
+            "\n🗑️ **商品削除**"
+        )
 
         for handle in removed:
             product = previous[handle]
 
             messages.append(
-                f"・{product.get('title', handle)} "
-                f"| {product.get('url', '')}"
+                f"・{product.get('title', handle)}"
+            )
+
+            messages.append(
+                f"  {product.get('url', '')}"
             )
 
     # 在庫変更
     if stock_changed:
-        messages.append("\n📦 **在庫変更**")
+        messages.append(
+            "\n📦 **在庫変更**"
+        )
 
         for handle in stock_changed:
             old = previous[handle]
             new = current[handle]
 
             messages.append(
-                f"・{new.get('title', handle)}\n"
-                f"  {status(old)} → {status(new)}\n"
+                f"・{new.get('title', handle)}"
+            )
+
+            messages.append(
+                f"  {status(old)} → "
+                f"{status(new)}"
+            )
+
+            messages.append(
                 f"  {new.get('url', '')}"
             )
 
     # 価格変更
     if price_changed:
-        messages.append("\n💰 **価格変更**")
+        messages.append(
+            "\n💰 **価格変更**"
+        )
 
         for handle in price_changed:
             old = previous[handle]
             new = current[handle]
 
             messages.append(
-                f"・{new.get('title', handle)}\n"
+                f"・{new.get('title', handle)}"
+            )
+
+            messages.append(
                 f"  {price(old) or '不明'} → "
-                f"{price(new) or '不明'}\n"
+                f"{price(new) or '不明'}"
+            )
+
+            messages.append(
                 f"  {new.get('url', '')}"
             )
 
@@ -621,66 +674,102 @@ def build_notification(previous, current, diff):
     return "\n".join(messages)
 
 
+# ============================================================
+# Main
+# ============================================================
+
 def main():
     try:
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_DIR.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
 
-        # 全ページ取得
+        # ----------------------------------------------------
+        # Fetch all pages
+        # ----------------------------------------------------
+
         raw_products = []
 
         for page in PAGES:
             page_products = fetch_page(page)
 
-            # 空レスポンス防止
             if len(page_products) == 0:
                 raise RuntimeError(
-                    f"page={page}: empty products response"
+                    f"page={page}: "
+                    "empty products response"
                 )
 
-            raw_products.extend(page_products)
+            raw_products.extend(
+                page_products
+            )
 
-        # 正規化
-        current = build_products(raw_products)
+        # ----------------------------------------------------
+        # Normalize
+        # ----------------------------------------------------
+
+        current = build_products(
+            raw_products
+        )
 
         current_count = len(current)
 
-        print(f"Total unique products: {current_count}")
+        print(
+            f"Total unique products: "
+            f"{current_count}"
+        )
 
         if current_count == 0:
             raise RuntimeError(
-                "normalized product count is zero"
+                "normalized product count "
+                "is zero"
             )
+
+        # ----------------------------------------------------
+        # Load previous
+        # ----------------------------------------------------
 
         previous = load_previous()
 
         previous_count = len(previous)
 
         print(
-            f"Previous products: {previous_count}"
+            f"Previous products: "
+            f"{previous_count}"
         )
 
-        # 初回実行
+        # ----------------------------------------------------
+        # First run
+        # ----------------------------------------------------
+
         if previous_count == 0:
             print(
-                "No previous data. "
                 "Creating initial snapshot."
             )
 
             save_json(current)
             save_csv(current)
-            save_html(current)
+            save_pages_json(current)
 
             send_discord(
                 "📌 **FINDME STORE監視を開始しました**\n\n"
                 f"取得商品数: {current_count}\n"
-                "今回は初回取得のため、差分通知はありません。"
+                "今回は初回取得のため、"
+                "差分通知はありません。"
             )
 
             return
 
-        # 件数激減防止
-        minimum_count = int(
-            previous_count * MIN_COUNT_RATIO
+        # ----------------------------------------------------
+        # Count safety check
+        # ----------------------------------------------------
+
+        minimum_count = max(
+            1,
+            int(
+                previous_count
+                * MIN_COUNT_RATIO
+            ),
         )
 
         if current_count < minimum_count:
@@ -689,8 +778,13 @@ def main():
                 f"前回: {previous_count}\n"
                 f"今回: {current_count}\n"
                 f"許容最低値: {minimum_count}\n"
-                "安全のため前回データを更新しません。"
+                "安全のため前回データを"
+                "更新しません。"
             )
+
+        # ----------------------------------------------------
+        # Compare
+        # ----------------------------------------------------
 
         diff = compare(
             previous,
@@ -698,25 +792,37 @@ def main():
         )
 
         print(
-            f"Added: {len(diff['added'])}"
+            f"Added: "
+            f"{len(diff['added'])}"
         )
+
         print(
-            f"Removed: {len(diff['removed'])}"
+            f"Removed: "
+            f"{len(diff['removed'])}"
         )
+
         print(
             f"Stock changed: "
             f"{len(diff['stock_changed'])}"
         )
+
         print(
             f"Price changed: "
             f"{len(diff['price_changed'])}"
         )
 
-        # 現在データを保存
+        # ----------------------------------------------------
+        # Save
+        # ----------------------------------------------------
+
         save_json(current)
         save_csv(current)
+        save_pages_json(current)
 
+        # ----------------------------------------------------
         # Discord
+        # ----------------------------------------------------
+
         notification = build_notification(
             previous,
             current,
@@ -724,12 +830,19 @@ def main():
         )
 
         if notification:
-            send_discord(notification)
+            send_discord(
+                notification
+            )
         else:
-            print("No changes.")
+            print(
+                "No changes."
+            )
 
     except Exception as e:
-        send_error(str(e))
+        send_error(
+            str(e)
+        )
+
         sys.exit(1)
 
 
