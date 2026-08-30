@@ -1,11 +1,12 @@
 <!doctype html>
+
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>FINDME STORE / ヰ世界情緒</title>
+    <title>FINDME STORE Monitor</title>
 
     <style>
       * {
@@ -14,144 +15,129 @@
 
       body {
         margin: 0;
-
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-
         background: #f5f5f5;
-
         color: #222;
       }
 
       header {
         background: #fff;
-
         border-bottom: 1px solid #ddd;
-
         padding: 24px;
       }
 
-      .header-inner {
+      .header-inner,
+      .controls,
+      main {
         max-width: 1400px;
-
-        margin: auto;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       h1 {
-        margin: 0 0 8px;
-
+        margin: 0 0 10px;
         font-size: 24px;
       }
 
       .info {
         color: #777;
+        font-size: 13px;
+      }
+
+      .collection-tabs {
+        max-width: 1400px;
+        margin: 20px auto 0;
+        padding: 0 20px;
+
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .collection-tab {
+        padding: 11px 20px;
+
+        border: 1px solid #ccc;
+        border-radius: 8px;
+
+        background: #fff;
+        color: #333;
+
+        cursor: pointer;
 
         font-size: 14px;
+        font-weight: 600;
+      }
+
+      .collection-tab.active {
+        background: #222;
+        color: #fff;
+        border-color: #222;
       }
 
       .controls {
-        max-width: 1400px;
-
-        margin: 20px auto;
-
-        padding: 0 20px;
+        padding: 15px 20px;
       }
 
       .search {
         width: 100%;
-
         padding: 14px 16px;
 
         border: 1px solid #ccc;
-
         border-radius: 8px;
 
         font-size: 16px;
-
-        background: #fff;
       }
 
-      .tabs {
-        display: flex;
-
-        gap: 8px;
-
-        margin-top: 15px;
-
-        flex-wrap: wrap;
-      }
-
-      .tab {
-        padding: 10px 16px;
-
-        border: 1px solid #ccc;
-
-        border-radius: 6px;
-
-        background: #fff;
-
-        cursor: pointer;
-
-        font-size: 14px;
-      }
-
-      .tab.active {
-        background: #222;
-
-        color: #fff;
-
-        border-color: #222;
-      }
-
+      .tabs,
       .filter-row {
         display: flex;
-
         gap: 8px;
-
         flex-wrap: wrap;
-
         margin-top: 10px;
       }
 
-      button,
+      .tab,
+      .status-filter,
+      .tag-filter {
+        padding: 8px 13px;
+
+        border: 1px solid #ccc;
+        border-radius: 6px;
+
+        background: #fff;
+        cursor: pointer;
+      }
+
+      .tab.active,
+      .status-filter.active,
+      .tag-filter.active {
+        background: #222;
+        color: #fff;
+      }
+
       select {
         padding: 8px 12px;
 
         border: 1px solid #ccc;
-
         border-radius: 6px;
 
         background: #fff;
-
-        cursor: pointer;
-      }
-
-      button.active {
-        background: #222;
-
-        color: #fff;
-
-        border-color: #222;
       }
 
       main {
-        max-width: 1400px;
-
-        margin: auto;
-
         padding: 0 20px 40px;
       }
 
       .count {
-        color: #777;
-
         margin-bottom: 10px;
+        color: #777;
+        font-size: 13px;
       }
 
       .products {
         background: #fff;
-
         border-radius: 8px;
-
         overflow: hidden;
       }
 
@@ -173,13 +159,8 @@
         border-bottom: 1px solid #eee;
       }
 
-      .product:last-child {
-        border-bottom: none;
-      }
-
       .product-image {
         width: 110px;
-
         height: 110px;
 
         object-fit: contain;
@@ -190,125 +171,78 @@
       }
 
       .product-title {
-        font-size: 16px;
-
         font-weight: 600;
-
         margin-bottom: 5px;
       }
 
       .product-title a {
         color: inherit;
-
         text-decoration: none;
-      }
-
-      .product-title a:hover {
-        text-decoration: underline;
       }
 
       .handle {
         font-size: 12px;
-
         color: #999;
-
         margin-bottom: 8px;
       }
 
       .product-tags {
         display: flex;
-
-        gap: 5px;
-
         flex-wrap: wrap;
+        gap: 5px;
       }
 
       .tag {
         padding: 3px 7px;
-
-        border-radius: 4px;
-
         background: #eee;
-
-        color: #666;
-
+        border-radius: 4px;
         font-size: 12px;
-      }
-
-      .price {
-        font-weight: 600;
+        color: #666;
       }
 
       .status {
         display: inline-block;
-
         padding: 5px 9px;
-
         border-radius: 5px;
-
         font-size: 13px;
-
-        white-space: nowrap;
       }
 
       .available {
         background: #dff5df;
-
         color: #176b17;
       }
 
       .soldout {
         background: #eee;
-
         color: #777;
       }
 
       .hidden {
         background: #ffe0e0;
-
         color: #a00000;
       }
 
       .history-info {
         margin-top: 8px;
-
         color: #777;
-
         font-size: 12px;
-
         line-height: 1.7;
       }
 
-      .no-results,
-      .loading {
+      .loading,
+      .no-results {
         padding: 60px 20px;
-
         text-align: center;
-
         color: #888;
       }
 
       @media (max-width: 800px) {
-        header {
-          padding: 18px;
-        }
-
-        .controls,
-        main {
-          padding-left: 10px;
-
-          padding-right: 10px;
-        }
-
         .product {
           grid-template-columns: 80px 1fr;
-
-          gap: 12px;
         }
 
         .product-image {
           width: 75px;
-
           height: 75px;
         }
 
@@ -323,17 +257,20 @@
   <body>
     <header>
       <div class="header-inner">
-        <h1>FINDME STORE / ヰ世界情緒</h1>
+        <h1>FINDME STORE Monitor</h1>
 
         <div class="info">
-          最終取得:
-          <span id="updated"> 読み込み中... </span>
+          <span id="collectionName"> - </span>
 
-          &nbsp;&nbsp; 登録商品:
-          <span id="total"> - </span>
+           |  最終取得: <span id="updated"> ------------------------- </span>
+
+           |  履歴: <span id="total"> --------------------- </span>
+          件
         </div>
       </div>
     </header>
+
+    <div id="collectionTabs" class="collection-tabs"></div>
 
     <section class="controls">
       <input
@@ -382,8 +319,7 @@
 
     <main>
       <div class="count">
-        表示:
-        <span id="visibleCount"> - </span>
+        表示: <span id="visibleCount"> ---------------------------- </span>
         件
       </div>
 
@@ -393,7 +329,9 @@
     </main>
 
     <script>
-      let products = [];
+      let monitors = [];
+
+      let selectedCollection = "";
 
       let history = [];
 
@@ -402,10 +340,6 @@
       let statusFilter = "all";
 
       let tagFilter = "all";
-
-      /* ============================================================
-   Escape
-============================================================ */
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -416,37 +350,112 @@
           .replace(/'/g, "&#039;");
       }
 
-      /* ============================================================
-   Load
-============================================================ */
+      async function loadConfig() {
+        const response = await fetch("./monitors.json?" + Date.now());
 
-      async function loadData() {
+        if (!response.ok) {
+          throw new Error("monitors.jsonの取得に失敗しました");
+        }
+
+        const config = await response.json();
+
+        if (!config.monitors || !Array.isArray(config.monitors)) {
+          throw new Error("monitors.jsonの形式が不正です");
+        }
+
+        monitors = config.monitors;
+
+        if (!monitors.length) {
+          throw new Error("監視対象がありません");
+        }
+
+        selectedCollection = monitors[0].collection;
+
+        renderCollectionTabs();
+
+        await loadCollection(selectedCollection);
+      }
+
+      function renderCollectionTabs() {
+        const container = document.getElementById("collectionTabs");
+
+        container.innerHTML = "";
+
+        monitors.forEach((monitor) => {
+          const button = document.createElement("button");
+
+          button.className = "collection-tab";
+
+          if (monitor.collection === selectedCollection) {
+            button.classList.add("active");
+          }
+
+          button.textContent = monitor.name;
+
+          button.onclick = async () => {
+            selectedCollection = monitor.collection;
+
+            mode = "current";
+
+            statusFilter = "all";
+
+            tagFilter = "all";
+
+            document.getElementById("search").value = "";
+
+            document.getElementById("sort").value = "default";
+
+            renderCollectionTabs();
+
+            await loadCollection(selectedCollection);
+          };
+
+          container.appendChild(button);
+        });
+      }
+
+      async function loadCollection(collection) {
+        const productsUrl = `./data/${collection}/products.json?` + Date.now();
+
+        const historyUrl = `./data/${collection}/history.json?` + Date.now();
+
+        document.getElementById("products").innerHTML = `
+
+            <div class="loading">
+                読み込み中...
+            </div>
+
+        `;
+
         try {
           const [productsResponse, historyResponse] = await Promise.all([
-            fetch("./data/products.json?" + Date.now()),
+            fetch(productsUrl),
 
-            fetch("./data/history.json?" + Date.now()),
+            fetch(historyUrl),
           ]);
 
           if (!productsResponse.ok || !historyResponse.ok) {
-            throw new Error("データ取得失敗");
+            throw new Error("商品データの取得に失敗しました");
           }
 
           const productData = await productsResponse.json();
 
           const historyData = await historyResponse.json();
 
-          products = Object.values(productData.products || {});
-
           history = Object.values(historyData.history || {});
 
-          document.getElementById("updated").textContent = new Date(
+          document.getElementById("collectionName").textContent =
+            productData.name || collection;
+
+          document.getElementById("updated").textContent = formatDate(
             productData.updated_at,
-          ).toLocaleString("ja-JP");
+          );
 
           document.getElementById("total").textContent = history.length;
 
           buildTagFilters();
+
+          updateModeButtons();
 
           render();
         } catch (error) {
@@ -456,7 +465,7 @@
 
                 <div class="no-results">
 
-                    データの読み込みに失敗しました。
+                    データ取得エラー
 
                     <br><br>
 
@@ -468,40 +477,24 @@
         }
       }
 
-      /* ============================================================
-   Availability
-============================================================ */
-
-      function isAvailable(product) {
-        if (product.last) {
-          return product.last.available === true;
-        }
-
-        return (product.variants || []).some(
-          (variant) => variant.available === true,
-        );
+      function getState(product) {
+        return product.last || {};
       }
 
-      /* ============================================================
-   Price
-============================================================ */
-
       function getPrice(product) {
-        if (product.last && product.last.price) {
-          const value = Number(product.last.price);
+        const price = getState(product).price;
 
-          return Number.isFinite(value) ? value : null;
-        }
+        const value = Number(price);
 
-        const prices = (product.variants || [])
-          .map((variant) => Number(variant.price))
-          .filter(Number.isFinite);
+        return Number.isFinite(value) ? value : null;
+      }
 
-        if (!prices.length) {
-          return null;
-        }
+      function isAvailable(product) {
+        return getState(product).available === true;
+      }
 
-        return Math.min(...prices);
+      function getTags(product) {
+        return getState(product).tags || [];
       }
 
       function formatPrice(product) {
@@ -512,18 +505,6 @@
         }
 
         return price.toLocaleString("ja-JP") + " 円";
-      }
-
-      /* ============================================================
-   Tags
-============================================================ */
-
-      function getTags(product) {
-        if (product.last && product.last.tags) {
-          return product.last.tags;
-        }
-
-        return product.tags || [];
       }
 
       function buildTagFilters() {
@@ -537,30 +518,32 @@
 
         container.innerHTML = "";
 
-        const allButton = document.createElement("button");
+        const all = document.createElement("button");
 
-        allButton.textContent = "全タグ";
+        all.className = "tag-filter active";
 
-        allButton.classList.add("active");
+        all.textContent = "全タグ";
 
-        allButton.onclick = () => {
+        all.onclick = () => {
           tagFilter = "all";
 
           document
-            .querySelectorAll("#tagFilters button")
-            .forEach((b) => b.classList.remove("active"));
+            .querySelectorAll(".tag-filter")
+            .forEach((button) => button.classList.remove("active"));
 
-          allButton.classList.add("active");
+          all.classList.add("active");
 
           render();
         };
 
-        container.appendChild(allButton);
+        container.appendChild(all);
 
         [...tags]
           .sort((a, b) => a.localeCompare(b, "ja"))
           .forEach((tag) => {
             const button = document.createElement("button");
+
+            button.className = "tag-filter";
 
             button.textContent = tag;
 
@@ -568,8 +551,8 @@
               tagFilter = tag;
 
               document
-                .querySelectorAll("#tagFilters button")
-                .forEach((b) => b.classList.remove("active"));
+                .querySelectorAll(".tag-filter")
+                .forEach((button) => button.classList.remove("active"));
 
               button.classList.add("active");
 
@@ -579,10 +562,6 @@
             container.appendChild(button);
           });
       }
-
-      /* ============================================================
-   Filtering
-============================================================ */
 
       function matchesSearch(product, search) {
         if (!search) {
@@ -602,17 +581,17 @@
           .value.trim()
           .toLowerCase();
 
-        let source;
+        let result;
 
         if (mode === "current") {
-          source = history.filter((product) => product.visible);
+          result = history.filter((product) => product.visible);
         } else if (mode === "hidden") {
-          source = history.filter((product) => !product.visible);
+          result = history.filter((product) => !product.visible);
         } else {
-          source = [...history];
+          result = [...history];
         }
 
-        return source.filter((product) => {
+        return result.filter((product) => {
           if (!matchesSearch(product, search)) {
             return false;
           }
@@ -636,10 +615,6 @@
           return true;
         });
       }
-
-      /* ============================================================
-   Sort
-============================================================ */
 
       function sortProducts(items) {
         const sort = document.getElementById("sort").value;
@@ -675,10 +650,6 @@
         return items;
       }
 
-      /* ============================================================
-   Render
-============================================================ */
-
       function render() {
         let items = filterProducts();
 
@@ -692,9 +663,7 @@
           container.innerHTML = `
 
             <div class="no-results">
-
                 条件に一致する商品がありません。
-
             </div>
 
         `;
@@ -702,14 +671,8 @@
           return;
         }
 
-        container.innerHTML = items
-          .map((product) => renderProduct(product))
-          .join("");
+        container.innerHTML = items.map(renderProduct).join("");
       }
-
-      /* ============================================================
-   Product card
-============================================================ */
 
       function renderProduct(product) {
         const available = isAvailable(product);
@@ -717,186 +680,170 @@
         const tags = getTags(product)
           .map(
             (tag) =>
-              `
-                <span class="tag">
+              `<span class="tag">
                     ${escapeHtml(tag)}
-                </span>
-                `,
+                </span>`,
           )
           .join("");
 
-        const images = product.last?.images || product.images || [];
+        const images = getState(product).images || [];
 
         const image = images[0] || "";
 
-        const hidden = !product.visible;
+        let status;
 
-        let statusHtml;
-
-        if (hidden) {
-          statusHtml = `
-
+        if (!product.visible) {
+          status = `
             <span class="status hidden">
                 ⚫ 非表示
             </span>
-
         `;
         } else if (available) {
-          statusHtml = `
-
+          status = `
             <span class="status available">
                 🟢 販売中
             </span>
-
         `;
         } else {
-          statusHtml = `
-
+          status = `
             <span class="status soldout">
                 🔴 Sold out
             </span>
-
         `;
         }
 
-        const historyInfo = `
-
-        <div class="history-info">
-
-            初回:
-            ${formatDate(product.first_seen)}
-
-            <br>
-
-            最終:
-            ${formatDate(product.last_seen)}
-
-        </div>
-
-    `;
-
         return `
 
-    <article class="product">
+        <article class="product">
 
+            <div>
 
-        <div>
-
-            ${
-              image
-                ? `
-
-                <img
-                    class="product-image"
-                    src="${escapeHtml(image)}"
-                    alt="${escapeHtml(product.title)}"
-                    loading="lazy"
-                >
-
-                `
-                : ""
-            }
-
-        </div>
-
-
-        <div>
-
-            <div class="product-title">
-
-                <a
-                    href="${escapeHtml(product.url)}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-
-                    ${escapeHtml(product.title)}
-
-                </a>
+                ${
+                  image
+                    ? `
+                        <img
+                            class="product-image"
+                            src="${escapeHtml(image)}"
+                            alt="${escapeHtml(product.title)}"
+                            loading="lazy"
+                        >
+                    `
+                    : ""
+                }
 
             </div>
 
 
-            <div class="handle">
+            <div>
 
-                ${escapeHtml(product.handle)}
+                <div class="product-title">
+
+                    <a
+                        href="${escapeHtml(product.url)}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+
+                        ${escapeHtml(product.title)}
+
+                    </a>
+
+                </div>
+
+
+                <div class="handle">
+
+                    ${escapeHtml(product.handle)}
+
+                </div>
+
+
+                <div class="product-tags">
+
+                    ${tags}
+
+                </div>
+
+
+                ${
+                  mode !== "current"
+                    ? `
+                        <div class="history-info">
+
+                            初回:
+                            ${formatDate(product.first_seen)}
+
+                            <br>
+
+                            最終:
+                            ${formatDate(product.last_seen)}
+
+                        </div>
+                    `
+                    : ""
+                }
 
             </div>
 
 
-            <div class="product-tags">
+            <div>
 
-                ${tags}
+                ${formatPrice(product)}
 
             </div>
 
 
-            ${mode !== "current" ? historyInfo : ""}
+            <div>
+
+                ${status}
+
+            </div>
 
 
-        </div>
-
-
-        <div class="price">
-
-            ${hidden ? "最終価格: " : ""}
-
-            ${formatPrice(product)}
-
-        </div>
-
-
-        <div>
-
-            ${statusHtml}
-
-        </div>
-
-
-    </article>
+        </article>
 
     `;
       }
-
-      /* ============================================================
-   Date
-============================================================ */
 
       function formatDate(value) {
         if (!value) {
           return "-";
         }
 
-        return new Date(value).toLocaleString("ja-JP");
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+          return "-";
+        }
+
+        return date.toLocaleString("ja-JP");
       }
 
-      /* ============================================================
-   Events
-============================================================ */
+      function updateModeButtons() {
+        document.querySelectorAll(".tab").forEach((button) => {
+          button.classList.toggle("active", button.dataset.mode === mode);
+        });
+
+        document.getElementById("statusFilters").style.display =
+          mode === "current" ? "flex" : "none";
+      }
 
       document.getElementById("search").addEventListener("input", render);
 
       document.getElementById("sort").addEventListener("change", render);
 
       document.querySelectorAll(".tab").forEach((button) => {
-        button.addEventListener("click", () => {
+        button.onclick = () => {
           mode = button.dataset.mode;
 
-          document
-            .querySelectorAll(".tab")
-            .forEach((b) => b.classList.remove("active"));
-
-          button.classList.add("active");
-
-          document.getElementById("statusFilters").style.display =
-            mode === "current" ? "flex" : "none";
+          updateModeButtons();
 
           render();
-        });
+        };
       });
 
       document.querySelectorAll(".status-filter").forEach((button) => {
-        button.addEventListener("click", () => {
+        button.onclick = () => {
           statusFilter = button.dataset.status;
 
           document
@@ -906,14 +853,22 @@
           button.classList.add("active");
 
           render();
-        });
+        };
       });
 
-      /* ============================================================
-   Start
-============================================================ */
+      loadConfig().catch((error) => {
+        console.error(error);
 
-      loadData();
+        document.getElementById("products").innerHTML = `
+
+                    <div class="no-results">
+
+                        ${escapeHtml(error.message)}
+
+                    </div>
+
+                `;
+      });
     </script>
   </body>
 </html>
