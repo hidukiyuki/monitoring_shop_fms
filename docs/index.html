@@ -42,6 +42,7 @@
 
       #lastUpdated {
         font-size: 13px;
+
         opacity: 0.75;
       }
 
@@ -87,11 +88,12 @@
 
       .tab.active {
         background: #111;
+
         color: #fff;
       }
 
       /* =====================================================
-       Search / Sort / View
+       Main controls
        ===================================================== */
 
       .main-controls {
@@ -124,8 +126,12 @@
       }
 
       .sort-box {
-        width: 220px;
+        width: 240px;
       }
+
+      /* =====================================================
+       View switch
+       ===================================================== */
 
       .view-switch {
         display: flex;
@@ -162,7 +168,7 @@
       }
 
       /* =====================================================
-       Filter sections
+       Filter panel
        ===================================================== */
 
       .filter-panel {
@@ -246,6 +252,8 @@
         cursor: pointer;
 
         font-size: 12px;
+
+        margin-top: 5px;
       }
 
       .clear-filters:hover {
@@ -273,6 +281,10 @@
 
         font-size: 14px;
       }
+
+      /* =====================================================
+       Error
+       ===================================================== */
 
       .error {
         padding: 15px;
@@ -380,8 +392,7 @@
         margin-top: 4px;
       }
 
-      .tags,
-      .categories {
+      .tags {
         display: flex;
 
         flex-wrap: wrap;
@@ -391,25 +402,14 @@
         margin-top: 10px;
       }
 
-      .tag,
-      .category {
+      .tag {
         padding: 4px 7px;
+
+        background: #eee;
 
         border-radius: 5px;
 
         font-size: 11px;
-      }
-
-      .tag {
-        background: #eee;
-      }
-
-      .category {
-        background: #e8eefc;
-
-        color: #315aa8;
-
-        font-weight: 600;
       }
 
       /* =====================================================
@@ -474,20 +474,19 @@
         display: grid;
 
         grid-template-columns:
-          72px
-          minmax(220px, 2.2fr)
-          minmax(150px, 1.2fr)
-          minmax(130px, 1fr)
-          minmax(110px, auto)
+          80px
+          minmax(180px, 2fr)
+          minmax(110px, 1fr)
+          minmax(100px, 1fr)
+          minmax(160px, 1fr)
+          minmax(160px, 1fr)
           auto;
 
         align-items: center;
 
-        gap: 16px;
+        gap: 15px;
 
-        min-height: 96px;
-
-        padding: 10px 14px;
+        padding: 10px 15px;
 
         border-radius: 8px;
 
@@ -497,9 +496,9 @@
       }
 
       .products.list-view .product-image {
-        width: 72px;
+        width: 80px;
 
-        height: 72px;
+        height: 80px;
 
         aspect-ratio: 1 / 1;
 
@@ -512,227 +511,86 @@
         display: contents;
       }
 
-      .products.list-view .product-info {
-        min-width: 0;
-
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 4px;
+      .products.list-view .availability {
+        margin: 0;
       }
 
       .products.list-view .product-title {
         margin: 0;
 
-        overflow: hidden;
-
         font-size: 14px;
-
-        font-weight: 600;
-
-        line-height: 1.4;
-
-        text-overflow: ellipsis;
-
-        white-space: nowrap;
       }
 
       .products.list-view .product-price {
         margin: 0;
 
         font-size: 15px;
-
-        white-space: nowrap;
       }
 
       .products.list-view .sku {
         margin: 0;
 
-        overflow: hidden;
+        font-size: 12px;
+
+        white-space: nowrap;
+      }
+
+      .products.list-view .date {
+        margin: 0;
 
         font-size: 12px;
 
-        text-overflow: ellipsis;
+        color: #777;
 
         white-space: nowrap;
       }
 
-      .products.list-view .product-meta {
-        min-width: 0;
-
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 5px;
-      }
-
-      .products.list-view .product-meta .categories,
-      .products.list-view .product-meta .tags {
-        display: flex;
-
-        flex-wrap: nowrap;
-
-        gap: 4px;
-
-        margin: 0;
-
-        overflow: hidden;
-      }
-
-      .products.list-view .product-meta .category,
-      .products.list-view .product-meta .tag {
-        flex: 0 0 auto;
-
-        max-width: 130px;
-
-        overflow: hidden;
-
-        padding: 3px 6px;
-
-        text-overflow: ellipsis;
-
-        white-space: nowrap;
-      }
-
-      .products.list-view .product-dates {
-        display: flex;
-
-        flex-direction: column;
-
-        gap: 3px;
-
-        min-width: 0;
-      }
-
-      .products.list-view .product-dates .date {
-        margin: 0;
-
-        overflow: hidden;
-
-        font-size: 11px;
-
-        text-overflow: ellipsis;
-
-        white-space: nowrap;
-      }
-
-      .products.list-view .availability {
-        margin: 0;
-
-        white-space: nowrap;
+      .products.list-view .tags {
+        display: none;
       }
 
       .products.list-view .product-link {
         margin: 0;
 
-        padding: 7px 9px;
-
-        border: 1px solid #0066cc;
-
-        border-radius: 5px;
-
         white-space: nowrap;
-      }
-
-      .products.list-view .product-link:hover {
-        background: #0066cc;
-
-        color: #fff;
-
-        text-decoration: none;
       }
 
       /* =====================================================
        Responsive
        ===================================================== */
 
-      @media (max-width: 1100px) {
+      @media (max-width: 1200px) {
         .products.list-view .product {
           grid-template-columns:
-            64px
-            minmax(190px, 2fr)
-            minmax(130px, 1fr)
-            minmax(110px, 1fr)
+            70px
+            minmax(150px, 2fr)
+            100px
+            100px
+            140px
+            140px
             auto;
-        }
-
-        .products.list-view .product-image {
-          width: 64px;
-
-          height: 64px;
-        }
-
-        .products.list-view .product-dates {
-          display: none;
         }
       }
 
-      @media (max-width: 800px) {
+      @media (max-width: 1000px) {
         .products.list-view .product {
           grid-template-columns:
-            60px
-            minmax(0, 1fr)
-            auto;
-
-          gap: 10px;
-
-          min-height: 80px;
+            70px
+            1fr
+            100px
+            100px;
         }
 
-        .products.list-view .product-image {
-          width: 60px;
-
-          height: 60px;
-        }
-
-        .products.list-view .product-info {
+        .products.list-view .date {
           grid-column: 2;
-
-          grid-row: 1;
-        }
-
-        .products.list-view .product-meta {
-          grid-column: 2;
-
-          grid-row: 2;
-
-          flex-direction: row;
-
-          align-items: center;
-        }
-
-        .products.list-view .product-meta .tags {
-          display: none;
-        }
-
-        .products.list-view .product-price {
-          grid-column: 3;
-
-          grid-row: 1;
-
-          text-align: right;
-        }
-
-        .products.list-view .availability {
-          grid-column: 3;
-
-          grid-row: 2;
-
-          justify-self: end;
         }
 
         .products.list-view .product-link {
-          grid-column: 2 / 4;
-
-          grid-row: 3;
-
-          justify-self: start;
+          grid-column: 3 / 5;
         }
       }
 
-      @media (max-width: 600px) {
+      @media (max-width: 700px) {
         .container {
           padding: 12px;
         }
@@ -754,30 +612,50 @@
         }
 
         .products.list-view .product {
+          display: grid;
+
           grid-template-columns:
-            52px
-            minmax(0, 1fr)
+            60px
+            1fr
             auto;
 
-          padding: 8px 10px;
+          gap: 10px;
+
+          padding: 10px;
         }
 
         .products.list-view .product-image {
-          width: 52px;
+          width: 60px;
 
-          height: 52px;
+          height: 60px;
         }
 
         .products.list-view .product-title {
-          font-size: 13px;
+          grid-column: 2;
         }
 
         .products.list-view .product-price {
-          font-size: 14px;
+          grid-column: 2;
+        }
+
+        .products.list-view .sku {
+          grid-column: 2;
+        }
+
+        .products.list-view .date {
+          grid-column: 2;
+        }
+
+        .products.list-view .availability {
+          grid-column: 3;
+
+          grid-row: 1;
         }
 
         .products.list-view .product-link {
-          font-size: 12px;
+          grid-column: 3;
+
+          grid-row: 2;
         }
       }
     </style>
@@ -791,46 +669,56 @@
     </header>
 
     <div class="container">
-      <!-- =====================================================
+      <!-- ===================================================
        Tabs
-       ===================================================== -->
+       =================================================== -->
 
       <div id="tabs" class="tabs"></div>
 
-      <!-- =====================================================
+      <!-- ===================================================
        Error
-       ===================================================== -->
+       =================================================== -->
 
       <div id="error" class="error" style="display: none"></div>
 
-      <!-- =====================================================
-       Main controls
-       ===================================================== -->
+      <!-- ===================================================
+       Controls
+       =================================================== -->
 
       <div id="controls" style="display: none">
         ```
         <div class="main-controls">
+          <!-- Search -->
+
           <div class="search-box">
             <input id="search" type="search" placeholder="商品名・SKUを検索" />
           </div>
 
+          <!-- Sort -->
+
           <div class="sort-box">
             <select id="priceSort">
-              <option value="default">並び順</option>
+              <option value="default">指定の並び順</option>
+
+              <option value="created_desc">作成日の降順</option>
+
+              <option value="sku_desc">SKUの降順</option>
+
+              <option value="sku_asc">SKUの昇順</option>
 
               <option value="price_asc">価格が安い順</option>
 
               <option value="price_desc">価格が高い順</option>
 
-              <option value="created_desc">作成日が新しい順</option>
+              <option value="created_asc">作成日の昇順</option>
 
-              <option value="created_asc">作成日が古い順</option>
+              <option value="updated_desc">更新日の降順</option>
 
-              <option value="updated_desc">更新日が新しい順</option>
-
-              <option value="updated_asc">更新日が古い順</option>
+              <option value="updated_asc">更新日の昇順</option>
             </select>
           </div>
+
+          <!-- View switch -->
 
           <div class="view-switch">
             <button
@@ -883,17 +771,21 @@
         ```
       </div>
 
-      <!-- =====================================================
+      <!-- ===================================================
        Status
-       ===================================================== -->
+       =================================================== -->
 
       <div id="status" class="status" style="display: none"></div>
 
-      <!-- =====================================================
-       Products
-       ===================================================== -->
+      <!-- ===================================================
+       Loading
+       =================================================== -->
 
       <div id="loading" class="loading">データを読み込んでいます...</div>
+
+      <!-- ===================================================
+       Products
+       =================================================== -->
 
       <div id="products" class="products"></div>
     </div>
@@ -902,8 +794,8 @@
       "use strict";
 
       /* =========================================================
-         Global state
-         ========================================================= */
+   Global state
+   ========================================================= */
 
       let monitors = [];
 
@@ -920,8 +812,8 @@
       let selectedAvailability = new Set();
 
       /* =========================================================
-         DOM
-         ========================================================= */
+   DOM
+   ========================================================= */
 
       const tabsEl = document.getElementById("tabs");
 
@@ -956,11 +848,11 @@
       const lastUpdatedEl = document.getElementById("lastUpdated");
 
       /* =========================================================
-         Utility
-         ========================================================= */
+   Utility
+   ========================================================= */
 
       function showError(message) {
-        errorEl.textContent = message;
+        errorEl.textContent = message || "不明なエラー";
 
         errorEl.style.display = "block";
       }
@@ -978,9 +870,13 @@
 
         return String(value)
           .replace(/&/g, "&amp;")
+
           .replace(/</g, "&lt;")
+
           .replace(/>/g, "&gt;")
+
           .replace(/"/g, "&quot;")
+
           .replace(/'/g, "&#039;");
       }
 
@@ -1011,7 +907,11 @@
 
         const time = new Date(value).getTime();
 
-        return Number.isNaN(time) ? 0 : time;
+        if (Number.isNaN(time)) {
+          return 0;
+        }
+
+        return time;
       }
 
       function formatPrice(value) {
@@ -1025,8 +925,8 @@
       }
 
       /* =========================================================
-         Monitor configuration
-         ========================================================= */
+   Monitor config
+   ========================================================= */
 
       async function loadMonitors() {
         const response = await fetch("./monitors.json?t=" + Date.now());
@@ -1052,6 +952,10 @@
         }
       }
 
+      /* =========================================================
+   Monitor helpers
+   ========================================================= */
+
       function getMonitorName(monitor) {
         return (
           monitor.name ||
@@ -1063,7 +967,7 @@
       }
 
       function getMonitorCollection(monitor) {
-        return monitor.collection || monitor.slug || monitor.name;
+        return monitor.collection || monitor.slug || monitor.name || "";
       }
 
       function getProductsPath(monitor) {
@@ -1077,8 +981,8 @@
       }
 
       /* =========================================================
-         Tabs
-         ========================================================= */
+   Tabs
+   ========================================================= */
 
       function renderTabs() {
         tabsEl.innerHTML = "";
@@ -1086,14 +990,16 @@
         monitors.forEach((monitor, index) => {
           const button = document.createElement("button");
 
+          button.type = "button";
+
           button.className = "tab" + (index === 0 ? " active" : "");
 
           button.textContent = getMonitorName(monitor);
 
           button.addEventListener("click", () => {
-            document
-              .querySelectorAll(".tab")
-              .forEach((tab) => tab.classList.remove("active"));
+            document.querySelectorAll(".tab").forEach((tab) => {
+              tab.classList.remove("active");
+            });
 
             button.classList.add("active");
 
@@ -1105,15 +1011,15 @@
       }
 
       /* =========================================================
-         Products JSON
-         ========================================================= */
+   Products JSON
+   ========================================================= */
 
       async function loadProducts(monitor) {
         const path = getProductsPath(monitor);
 
-        const response = await fetch(
-          path + (path.includes("?") ? "&" : "?") + "t=" + Date.now(),
-        );
+        const separator = path.includes("?") ? "&" : "?";
+
+        const response = await fetch(path + separator + "t=" + Date.now());
 
         if (!response.ok) {
           throw new Error(
@@ -1123,17 +1029,9 @@
 
         const data = await response.json();
 
-        /*
-         * 配列形式
-         */
-
         if (Array.isArray(data)) {
           return data;
         }
-
-        /*
-         * Shopify形式
-         */
 
         if (data && Array.isArray(data.products)) {
           return data.products;
@@ -1143,8 +1041,8 @@
       }
 
       /* =========================================================
-         Product helpers
-         ========================================================= */
+   Product helpers
+   ========================================================= */
 
       function getVariant(product) {
         if (
@@ -1161,7 +1059,7 @@
       function getSku(product) {
         const variant = getVariant(product);
 
-        return variant?.sku || product.sku || "";
+        return String(variant?.sku || product.sku || "");
       }
 
       function getPrice(product) {
@@ -1173,8 +1071,10 @@
       }
 
       function isAvailable(product) {
-        if (Array.isArray(product.variants)) {
-          return product.variants.some((variant) => variant.available === true);
+        if (Array.isArray(product.variants) && product.variants.length > 0) {
+          return product.variants.some(
+            (variant) => variant && variant.available === true,
+          );
         }
 
         if (typeof product.available === "boolean") {
@@ -1204,7 +1104,9 @@
             return image;
           }
 
-          return image.src || image.url || "";
+          if (image && typeof image === "object") {
+            return image.src || image.url || "";
+          }
         }
 
         if (typeof product.image === "string") {
@@ -1235,7 +1137,7 @@
 
       function getTags(product) {
         if (Array.isArray(product.tags)) {
-          return product.tags;
+          return product.tags.map((tag) => String(tag).trim()).filter(Boolean);
         }
 
         if (typeof product.tags === "string") {
@@ -1248,22 +1150,12 @@
         return [];
       }
 
-      /*
-       * Shopifyの商品タイプをカテゴリとして扱う
-       *
-       * product_type
-       * category
-       * type
-       *
-       * の順で取得
-       */
-
       function getCategories(product) {
         const category =
           product.category || product.product_type || product.type || "";
 
         if (Array.isArray(category)) {
-          return category.map((value) => String(value).trim()).filter(Boolean);
+          return category.map((item) => String(item).trim()).filter(Boolean);
         }
 
         if (typeof category === "string" && category.trim()) {
@@ -1274,8 +1166,8 @@
       }
 
       /* =========================================================
-         Filter values
-         ========================================================= */
+   Collect filters
+   ========================================================= */
 
       function collectFilterValues() {
         const tags = new Set();
@@ -1283,11 +1175,13 @@
         const categories = new Set();
 
         originalProducts.forEach((product) => {
-          getTags(product).forEach((tag) => tags.add(tag));
+          getTags(product).forEach((tag) => {
+            tags.add(tag);
+          });
 
-          getCategories(product).forEach((category) =>
-            categories.add(category),
-          );
+          getCategories(product).forEach((category) => {
+            categories.add(category);
+          });
         });
 
         return {
@@ -1300,8 +1194,8 @@
       }
 
       /* =========================================================
-         Filter buttons
-         ========================================================= */
+   Filter button
+   ========================================================= */
 
       function renderFilterButton(container, label, active, callback) {
         const button = document.createElement("button");
@@ -1318,8 +1212,8 @@
       }
 
       /* =========================================================
-         Render filters
-         ========================================================= */
+   Render filters
+   ========================================================= */
 
       function renderFilters() {
         availabilityFiltersEl.innerHTML = "";
@@ -1328,9 +1222,9 @@
 
         tagFiltersEl.innerHTML = "";
 
-        /*
-         * Availability
-         */
+        /* -------------------------------------------------------
+     Availability
+     ------------------------------------------------------- */
 
         renderFilterButton(
           availabilityFiltersEl,
@@ -1344,6 +1238,7 @@
             }
 
             renderFilters();
+
             renderProducts();
           },
         );
@@ -1360,13 +1255,14 @@
             }
 
             renderFilters();
+
             renderProducts();
           },
         );
 
-        /*
-         * Categories
-         */
+        /* -------------------------------------------------------
+     Categories
+     ------------------------------------------------------- */
 
         const { categories, tags } = collectFilterValues();
 
@@ -1394,15 +1290,16 @@
                 }
 
                 renderFilters();
+
                 renderProducts();
               },
             );
           });
         }
 
-        /*
-         * Tags
-         */
+        /* -------------------------------------------------------
+     Tags
+     ------------------------------------------------------- */
 
         if (tags.length === 0) {
           const empty = document.createElement("span");
@@ -1424,6 +1321,7 @@
               }
 
               renderFilters();
+
               renderProducts();
             });
           });
@@ -1431,13 +1329,13 @@
       }
 
       /* =========================================================
-         Filtering
-         ========================================================= */
+   Filter matching
+   ========================================================= */
 
       function matchesFilter(product) {
-        /*
-         * Search
-         */
+        /* -------------------------------------------------------
+     Search
+     ------------------------------------------------------- */
 
         const keyword = searchEl.value.trim().toLowerCase();
 
@@ -1451,11 +1349,9 @@
           }
         }
 
-        /*
-         * Availability
-         *
-         * 複数選択時はOR
-         */
+        /* -------------------------------------------------------
+     Availability
+     ------------------------------------------------------- */
 
         if (selectedAvailability.size > 0) {
           const available = isAvailable(product);
@@ -1467,11 +1363,9 @@
           }
         }
 
-        /*
-         * Categories
-         *
-         * 複数選択時はOR
-         */
+        /* -------------------------------------------------------
+     Categories
+     ------------------------------------------------------- */
 
         if (selectedCategories.size > 0) {
           const categories = getCategories(product);
@@ -1485,11 +1379,9 @@
           }
         }
 
-        /*
-         * Tags
-         *
-         * 複数選択時はOR
-         */
+        /* -------------------------------------------------------
+     Tags
+     ------------------------------------------------------- */
 
         if (selectedTags.size > 0) {
           const tags = getTags(product);
@@ -1505,19 +1397,25 @@
       }
 
       /* =========================================================
-         Sorting
-         ========================================================= */
+   Sorting
+   ========================================================= */
 
       function sortProducts(products) {
         const sort = priceSortEl.value;
 
-        if (sort === "price_asc") {
-          products.sort((a, b) => getPrice(a) - getPrice(b));
+        /*
+         * 指定の並び順
+         *
+         * JSONの並び順を維持
+         */
+
+        if (sort === "default") {
+          return products;
         }
 
-        if (sort === "price_desc") {
-          products.sort((a, b) => getPrice(b) - getPrice(a));
-        }
+        /*
+         * 作成日の降順
+         */
 
         if (sort === "created_desc") {
           products.sort(
@@ -1525,17 +1423,71 @@
           );
         }
 
+        /*
+         * SKUの降順
+         */
+
+        if (sort === "sku_desc") {
+          products.sort((a, b) =>
+            getSku(b).localeCompare(getSku(a), "ja", {
+              numeric: true,
+              sensitivity: "base",
+            }),
+          );
+        }
+
+        /*
+         * SKUの昇順
+         */
+
+        if (sort === "sku_asc") {
+          products.sort((a, b) =>
+            getSku(a).localeCompare(getSku(b), "ja", {
+              numeric: true,
+              sensitivity: "base",
+            }),
+          );
+        }
+
+        /*
+         * 価格の昇順
+         */
+
+        if (sort === "price_asc") {
+          products.sort((a, b) => getPrice(a) - getPrice(b));
+        }
+
+        /*
+         * 価格の降順
+         */
+
+        if (sort === "price_desc") {
+          products.sort((a, b) => getPrice(b) - getPrice(a));
+        }
+
+        /*
+         * 作成日の昇順
+         */
+
         if (sort === "created_asc") {
           products.sort(
             (a, b) => timestamp(getCreatedAt(a)) - timestamp(getCreatedAt(b)),
           );
         }
 
+        /*
+         * 更新日の降順
+         */
+
         if (sort === "updated_desc") {
           products.sort(
             (a, b) => timestamp(getUpdatedAt(b)) - timestamp(getUpdatedAt(a)),
           );
         }
+
+        /*
+         * 更新日の昇順
+         */
 
         if (sort === "updated_asc") {
           products.sort(
@@ -1547,8 +1499,8 @@
       }
 
       /* =========================================================
-         Render products
-         ========================================================= */
+   Render products
+   ========================================================= */
 
       function renderProducts() {
         productsEl.innerHTML = "";
@@ -1557,13 +1509,18 @@
 
         let products = originalProducts.filter(matchesFilter);
 
+        /*
+         * filter() で作った配列を
+         * sortするので元データは変更しない
+         */
+
         products = sortProducts(products);
 
         if (products.length === 0) {
           productsEl.innerHTML =
             '<div class="loading">' + "該当する商品がありません。" + "</div>";
 
-          updateStatus(products.length);
+          updateStatus(0);
 
           return;
         }
@@ -1589,11 +1546,9 @@
 
           const tags = getTags(product);
 
-          const categories = getCategories(product);
-
-          /*
-           * Image
-           */
+          /* ---------------------------------------------------
+         Image
+         --------------------------------------------------- */
 
           if (image) {
             const img = document.createElement("img");
@@ -1613,25 +1568,30 @@
             card.appendChild(img);
           }
 
-          /*
-           * Body
-           */
+          /* ---------------------------------------------------
+         Body
+         --------------------------------------------------- */
 
           const body = document.createElement("div");
 
           body.className = "product-body";
 
-          /*
-           * Product info
-           */
+          /* ---------------------------------------------------
+         Availability
+         --------------------------------------------------- */
 
-          const info = document.createElement("div");
+          const availabilityEl = document.createElement("div");
 
-          info.className = "product-info";
+          availabilityEl.className =
+            "availability " + (available ? "available" : "soldout");
 
-          /*
-           * Title
-           */
+          availabilityEl.textContent = available ? "販売中" : "Sold out";
+
+          body.appendChild(availabilityEl);
+
+          /* ---------------------------------------------------
+         Title
+         --------------------------------------------------- */
 
           const titleEl = document.createElement("div");
 
@@ -1639,27 +1599,11 @@
 
           titleEl.textContent = product.title || "名称未設定";
 
-          info.appendChild(titleEl);
+          body.appendChild(titleEl);
 
-          /*
-           * SKU
-           */
-
-          if (sku) {
-            const skuEl = document.createElement("div");
-
-            skuEl.className = "sku";
-
-            skuEl.innerHTML = "<strong>SKU:</strong> " + escapeHtml(sku);
-
-            info.appendChild(skuEl);
-          }
-
-          body.appendChild(info);
-
-          /*
-           * Price
-           */
+          /* ---------------------------------------------------
+         Price
+         --------------------------------------------------- */
 
           const priceEl = document.createElement("div");
 
@@ -1669,40 +1613,47 @@
 
           body.appendChild(priceEl);
 
-          /*
-           * Product meta
-           */
+          /* ---------------------------------------------------
+         SKU
+         --------------------------------------------------- */
 
-          const meta = document.createElement("div");
+          const skuEl = document.createElement("div");
 
-          meta.className = "product-meta";
+          skuEl.className = "sku";
 
-          /*
-             * Category
+          skuEl.innerHTML = "<strong>SKU:</strong> " + escapeHtml(sku || "-");
 
-             */
+          body.appendChild(skuEl);
 
-          if (categories.length > 0) {
-            const categoriesEl = document.createElement("div");
+          /* ---------------------------------------------------
+         Created
+         --------------------------------------------------- */
 
-            categoriesEl.className = "categories";
+          const createdEl = document.createElement("div");
 
-            categories.forEach((category) => {
-              const categoryEl = document.createElement("span");
+          createdEl.className = "date";
 
-              categoryEl.className = "category";
+          createdEl.innerHTML =
+            "<strong>作成:</strong> " + escapeHtml(formatDate(createdAt));
 
-              categoryEl.textContent = category;
+          body.appendChild(createdEl);
 
-              categoriesEl.appendChild(categoryEl);
-            });
+          /* ---------------------------------------------------
+         Updated
+         --------------------------------------------------- */
 
-            meta.appendChild(categoriesEl);
-          }
+          const updatedEl = document.createElement("div");
 
-          /*
-           * Tags
-           */
+          updatedEl.className = "date";
+
+          updatedEl.innerHTML =
+            "<strong>更新:</strong> " + escapeHtml(formatDate(updatedAt));
+
+          body.appendChild(updatedEl);
+
+          /* ---------------------------------------------------
+         Tags
+         --------------------------------------------------- */
 
           if (tags.length > 0) {
             const tagsEl = document.createElement("div");
@@ -1719,55 +1670,12 @@
               tagsEl.appendChild(tagEl);
             });
 
-            meta.appendChild(tagsEl);
+            body.appendChild(tagsEl);
           }
 
-          body.appendChild(meta);
-
-          /*
-           * Dates
-           */
-
-          const dates = document.createElement("div");
-
-          dates.className = "product-dates";
-
-          const createdEl = document.createElement("div");
-
-          createdEl.className = "date";
-
-          createdEl.innerHTML =
-            "<strong>作成:</strong> " + escapeHtml(formatDate(createdAt));
-
-          dates.appendChild(createdEl);
-
-          const updatedEl = document.createElement("div");
-
-          updatedEl.className = "date";
-
-          updatedEl.innerHTML =
-            "<strong>更新:</strong> " + escapeHtml(formatDate(updatedAt));
-
-          dates.appendChild(updatedEl);
-
-          body.appendChild(dates);
-
-          /*
-           * Availability
-           */
-
-          const availabilityEl = document.createElement("div");
-
-          availabilityEl.className =
-            "availability " + (available ? "available" : "soldout");
-
-          availabilityEl.textContent = available ? "販売中" : "Sold out";
-
-          body.appendChild(availabilityEl);
-
-          /*
-           * Product link
-           */
+          /* ---------------------------------------------------
+         Product link
+         --------------------------------------------------- */
 
           if (url) {
             const link = document.createElement("a");
@@ -1794,8 +1702,8 @@
       }
 
       /* =========================================================
-         Status
-         ========================================================= */
+   Status
+   ========================================================= */
 
       function updateStatus(displayedCount) {
         const total = originalProducts.length;
@@ -1824,8 +1732,8 @@
       }
 
       /* =========================================================
-         Load monitor
-         ========================================================= */
+   Load monitor
+   ========================================================= */
 
       async function loadMonitor(monitor) {
         currentMonitor = monitor;
@@ -1841,7 +1749,7 @@
         clearError();
 
         /*
-         * タブ切替時にフィルターをリセット
+         * タブ切替時はフィルターをリセット
          */
 
         selectedTags.clear();
@@ -1869,6 +1777,8 @@
         } catch (error) {
           console.error(error);
 
+          originalProducts = [];
+
           showError(error.message || "データの読み込みに失敗しました");
         } finally {
           loadingEl.style.display = "none";
@@ -1876,8 +1786,8 @@
       }
 
       /* =========================================================
-         View switch
-         ========================================================= */
+   View switch
+   ========================================================= */
 
       cardViewButton.addEventListener("click", () => {
         viewMode = "card";
@@ -1900,8 +1810,8 @@
       });
 
       /* =========================================================
-         Clear filters
-         ========================================================= */
+   Clear filters
+   ========================================================= */
 
       clearFiltersEl.addEventListener("click", () => {
         selectedTags.clear();
@@ -1920,24 +1830,24 @@
       });
 
       /* =========================================================
-         Search
-         ========================================================= */
+   Search
+   ========================================================= */
 
       searchEl.addEventListener("input", () => {
         renderProducts();
       });
 
       /* =========================================================
-         Sort
-         ========================================================= */
+   Sort
+   ========================================================= */
 
       priceSortEl.addEventListener("change", () => {
         renderProducts();
       });
 
       /* =========================================================
-         Initial
-         ========================================================= */
+   Initial
+   ========================================================= */
 
       async function init() {
         try {
