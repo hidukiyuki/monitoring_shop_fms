@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+
+    <meta name="referrer" content="no-referrer" />
+
+    <title>商品管理</title>
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background: #f5f5f5;
+        color: #222;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: auto;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      .panel {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      }
+
+      label {
+        display: block;
+        font-weight: 600;
+        margin-top: 14px;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        margin-top: 6px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        font: inherit;
+      }
+
+      textarea {
+        min-height: 80px;
+      }
+
+      button {
+        border: 0;
+        padding: 10px 16px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .primary {
+        background: #222;
+        color: white;
+      }
+
+      .danger {
+        background: #d33;
+        color: white;
+      }
+
+      .secondary {
+        background: #ddd;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+
+      .product {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        padding: 14px;
+        margin-top: 12px;
+        background: #fff;
+      }
+
+      .product-title {
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .meta {
+        color: #666;
+        font-size: 13px;
+        margin-top: 5px;
+      }
+
+      .status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+
+      .on {
+        background: #dff5df;
+      }
+
+      .off {
+        background: #eee;
+      }
+
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>手動商品管理</h1>
+
+      <div class="panel">
+        <h2>管理ログイン</h2>
+
+        <input id="adminToken" type="password" placeholder="ADMIN_TOKEN" />
+
+        <div class="actions">
+          <button class="primary" onclick="login()">ログイン</button>
+
+          <button class="secondary" onclick="logout()">ログアウト</button>
+        </div>
+
+        <div id="loginStatus"></div>
+      </div>
+
+      <div id="editor" class="panel hidden">
+        <h2 id="editorTitle">商品を追加</h2>
+
+        <input id="productId" type="hidden" />
+
+        <label>
+          商品名
+
+          <input id="title" type="text" maxlength="300" />
+        </label>
+
+        <label>
+          SKU
+
+          <input id="sku" type="text" maxlength="200" />
+        </label>
+
+        <label>
+          価格
+
+          <input id="price" type="number" min="0" />
+        </label>
+
+        <label>
+          カテゴリ
+
+          <input id="category" type="text" />
+        </label>
+
+        <label>
+          タグ
+
+          <input id="tags" type="text" placeholder="ヰ世界情緒,限定,会場販売" />
+        </label>
+
+        <label>
+          販売元
+
+          <input id="sourceName" type="text" placeholder="イベント会場" />
+        </label>
+
+        <label>
+          商品URL
+
+          <input id="url" type="url" />
+        </label>
+
+        <label>
+          画像URL
+
+          <input id="imageUrl" type="url" />
+        </label>
+
+        <label>
+          <input id="available" type="checkbox" checked style="width: auto" />
+
+          販売中
+        </label>
+
+        <div class="actions">
+          <button class="primary" onclick="saveProduct()">保存</button>
+
+          <button class="secondary" onclick="clearForm()">新規入力</button>
+        </div>
+      </div>
+
+      <div id="productsPanel" class="panel hidden">
+        <h2>登録済み手動商品</h2>
+
+        <div id="products"></div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "https://monitoring-shop-fms-api.hidukiyuki.workers.dev/";
+
+      let products = [];
+
+      /* =========================
+   Login
+========================= */
+
+      function login() {
+        const token = document.getElementById("adminToken").value.trim();
+
+        if (!token) {
+          alert("ADMIN_TOKENを入力してください");
+
+          return;
+        }
+
+        sessionStorage.setItem("manual_admin_token", token);
+
+        loadProducts();
+      }
+
+      /* =========================
+   Logout
+========================= */
+
+      function logout() {
+        sessionStorage.removeItem("manual_admin_token");
+
+        products = [];
+
+        document.getElementById("editor").classList.add("hidden");
+
+        document.getElementById("productsPanel").classList.add("hidden");
+
+        document.getElementById("products").innerHTML = "";
+
+        document.getElementById("loginStatus").textContent =
+          "ログアウトしました";
+      }
+
+      /* =========================
+   Token
+========================= */
+
+      function token() {
+        return sessionStorage.getItem("manual_admin_token");
+      }
+
+      /* =========================
+   Load
+========================= */
+
+      async function loadProducts() {
+        if (!token()) {
+          return;
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/products`, {
+            headers: {
+              Authorization: `Bearer ${token()}`,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          products = Array.isArray(data.products) ? data.products : [];
+
+          document.getElementById("editor").classList.remove("hidden");
+
+          document.getElementById("productsPanel").classList.remove("hidden");
+
+          document.getElementById("loginStatus").textContent =
+            `${products.length}件`;
+
+          renderProducts();
+        } catch (error) {
+          console.error(error);
+
+          sessionStorage.removeItem("manual_admin_token");
+
+          alert("ログインに失敗しました");
+        }
+      }
+
+      /* =========================
+   Render
+========================= */
+
+      function renderProducts() {
+        const container = document.getElementById("products");
+
+        container.innerHTML = "";
+
+        for (const product of products) {
+          const div = document.createElement("div");
+
+          div.className = "product";
+
+          const statusClass = product.available ? "on" : "off";
+
+          const statusText = product.available ? "販売中" : "Sold out";
+
+          div.innerHTML = `
+
+      <div class="product-title">
+        ${escapeHtml(product.title)}
+      </div>
+
+      <div class="meta">
+        SKU:
+        ${escapeHtml(product.sku || "-")}
+      </div>
+
+      <div class="meta">
+        カテゴリ:
+        ${escapeHtml(product.category || "-")}
+      </div>
+
+      <div class="meta">
+        販売元:
+        ${escapeHtml(product.source_name || "-")}
+      </div>
+
+      <div class="meta">
+        タグ:
+        ${escapeHtml((product.tags || []).join(", "))}
+      </div>
+
+      <div class="meta">
+        作成:
+        ${formatDate(product.created_at)}
+      </div>
+
+      <div class="meta">
+        更新:
+        ${formatDate(product.updated_at)}
+      </div>
+
+      <span class="status ${statusClass}">
+        ${statusText}
+      </span>
+
+      <div class="actions">
+
+        <button
+          class="secondary"
+          onclick="editProduct('${product.id}')"
+        >
+          編集
+        </button>
+
+        <button
+          class="danger"
+          onclick="deleteProduct('${product.id}')"
+        >
+          削除
+        </button>
+
+      </div>
+
+    `;
+
+          container.appendChild(div);
+        }
+      }
+
+      /* =========================
+   Edit
+========================= */
+
+      function editProduct(id) {
+        const product = products.find((p) => p.id === id);
+
+        if (!product) {
+          return;
+        }
+
+        document.getElementById("productId").value = product.id;
+
+        document.getElementById("title").value = product.title || "";
+
+        document.getElementById("sku").value = product.sku || "";
+
+        document.getElementById("price").value = product.price || 0;
+
+        document.getElementById("category").value = product.category || "";
+
+        document.getElementById("tags").value = (product.tags || []).join(", ");
+
+        document.getElementById("sourceName").value = product.source_name || "";
+
+        document.getElementById("url").value = product.url || "";
+
+        document.getElementById("imageUrl").value = product.image_url || "";
+
+        document.getElementById("available").checked = Boolean(
+          product.available,
+        );
+
+        document.getElementById("editorTitle").textContent = "商品を編集";
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      /* =========================
+   Save
+========================= */
+
+      async function saveProduct() {
+        if (!token()) {
+          alert("ログインしてください");
+
+          return;
+        }
+
+        const id = document.getElementById("productId").value.trim();
+
+        const product = {
+          title: document.getElementById("title").value.trim(),
+
+          sku: document.getElementById("sku").value.trim(),
+
+          price: Number(document.getElementById("price").value || 0),
+
+          category: document.getElementById("category").value.trim(),
+
+          tags: document
+            .getElementById("tags")
+            .value.split(",")
+            .map((value) => value.trim())
+            .filter(Boolean),
+
+          source_name: document.getElementById("sourceName").value.trim(),
+
+          url: document.getElementById("url").value.trim(),
+
+          image_url: document.getElementById("imageUrl").value.trim(),
+
+          available: document.getElementById("available").checked,
+        };
+
+        if (!product.title) {
+          alert("商品名を入力してください");
+
+          return;
+        }
+
+        const method = id ? "PUT" : "POST";
+
+        const endpoint = id
+          ? `${API_URL}/products/${encodeURIComponent(id)}`
+          : `${API_URL}/products`;
+
+        try {
+          const response = await fetch(endpoint, {
+            method,
+
+            headers: {
+              "Content-Type": "application/json",
+
+              Authorization: `Bearer ${token()}`,
+            },
+
+            body: JSON.stringify(product),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+          }
+
+          alert(id ? "更新しました" : "登録しました");
+
+          clearForm();
+
+          await loadProducts();
+        } catch (error) {
+          console.error(error);
+
+          alert(`保存に失敗しました\n${error.message}`);
+        }
+      }
+
+      /* =========================
+   Delete
+========================= */
+
+      async function deleteProduct(id) {
+        if (!confirm("この商品を削除しますか？")) {
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            `${API_URL}/products/${encodeURIComponent(id)}`,
+            {
+              method: "DELETE",
+
+              headers: {
+                Authorization: `Bearer ${token()}`,
+              },
+            },
+          );
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || `HTTP ${response.status}`);
+          }
+
+          await loadProducts();
+        } catch (error) {
+          console.error(error);
+
+          alert(`削除に失敗しました\n${error.message}`);
+        }
+      }
+
+      /* =========================
+   Clear
+========================= */
+
+      function clearForm() {
+        document.getElementById("productId").value = "";
+
+        document.getElementById("title").value = "";
+
+        document.getElementById("sku").value = "";
+
+        document.getElementById("price").value = "0";
+
+        document.getElementById("category").value = "";
+
+        document.getElementById("tags").value = "";
+
+        document.getElementById("sourceName").value = "";
+
+        document.getElementById("url").value = "";
+
+        document.getElementById("imageUrl").value = "";
+
+        document.getElementById("available").checked = true;
+
+        document.getElementById("editorTitle").textContent = "商品を追加";
+      }
+
+      /* =========================
+   Utils
+========================= */
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function formatDate(value) {
+        if (!value) {
+          return "-";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+          return value;
+        }
+
+        return date.toLocaleString("ja-JP");
+      }
+
+      /* =========================
+   Auto login
+========================= */
+
+      if (sessionStorage.getItem("manual_admin_token")) {
+        loadProducts();
+      }
+    </script>
+  </body>
+</html>

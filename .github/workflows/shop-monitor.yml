@@ -21,134 +21,181 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ======================================================
-      # Checkout
-      # ======================================================
-
+      # ==================================================
+      # 1. GitHubリポジトリを取得
+      # ==================================================
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: true
 
-      # ======================================================
-      # Python
-      # ======================================================
-
+      # ==================================================
+      # 2. Pythonセットアップ
+      # ==================================================
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.12"
 
-      # ======================================================
-      # Git configuration
-      # ======================================================
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      # ======================================================
-      # Get latest main
+      # ==================================================
+      # 3. Python依存関係をインストール
       #
-      # 重要:
-      # monitor_shop.py より前に実行する
-      # ======================================================
-
-      - name: Pull latest changes
+      # requirements.txt が存在する場合だけ実行
+      # ==================================================
+      - name: Install dependencies
         run: |
-          git pull --rebase origin main
+          python -m pip install --upgrade pip
 
-      # ======================================================
-      # Run monitor
-      # ======================================================
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
 
-      - name: Run monitor
+      # ==================================================
+      # 4. 必須ファイル確認
+      # ==================================================
+      - name: Check required files
+        run: |
+          test -f monitor_shop.py
+          test -f config/monitors.json
+
+      # ==================================================
+      # 5. データディレクトリを作成
+      #
+      # Gitでは空フォルダを保持できないため、
+      # Actions実行時にも必ず作成する
+      # ==================================================
+      - name: Prepare data directories
+        run: |
+          mkdir -p docs/data
+          mkdir -p docs/data/history
+          mkdir -p docs/data/csv
+
+      # ==================================================
+      # 6. 商品監視
+      #
+      # monitor_shop.py が
+      # config/monitors.json を読み込む
+      #
+      # JSON / CSV / 履歴の生成
+      # Discord差分通知などは
+      # monitor_shop.py 側で処理
+      # ==================================================
+      - name: Run monitor_shop.py
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          python scripts/monitor_shop.py
+          python monitor_shop.py
 
-      # ======================================================
-      # Copy monitors.json for GitHub Pages
-      # ======================================================
-
-      - name: Copy monitors.json to Pages
+      # ==================================================
+      # 7. monitors.jsonをPages側へ同期
+      #
+      # config/monitors.jsonを正本とする
+      #
+      # index.html
+      #     ↓
+      # docs/monitors.json
+      #
+      # を読み込む
+      # ==================================================
+      - name: Sync monitors.json
         run: |
-          mkdir -p docs
           cp config/monitors.json docs/monitors.json
 
-      # ======================================================
-      # Debug
+      # ==================================================
+      # 8. 生成結果を確認
       #
-      # JSON / CSVが本当に生成されているか確認
-      # ======================================================
-
-      - name: Show generated files
+      # Actionsログから
+      # JSON / CSVが実際に生成されたか確認できる
+      # ==================================================
+      - name: Show generated data
         run: |
           echo "========================================"
-          echo "data/"
+          echo "Generated files"
           echo "========================================"
 
-          find data -type f -print || true
+          find docs/data \
+            -type f \
+            -print \
+            | sort
 
-          echo ""
-          echo "========================================"
-          echo "docs/data/"
-          echo "========================================"
-
-          find docs/data -type f -print || true
-
-          echo ""
+          echo
           echo "========================================"
           echo "Git status"
           echo "========================================"
 
           git status --short
 
-      # ======================================================
-      # Stage
-      # ======================================================
-
-      - name: Stage generated files
+      # ==================================================
+      # 9. Git設定
+      # ==================================================
+      - name: Configure Git
         run: |
-          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # ======================================================
-      # Show staged changes
-      # ======================================================
-
-      - name: Show staged changes
+      # ==================================================
+      # 10. 生成ファイルをcommit
+      #
+      # 変更がない場合は正常終了
+      # ==================================================
+      - name: Commit generated data
         run: |
-          echo "========================================"
-          echo "Staged files"
-          echo "========================================"
 
-          git status --short
-
-          echo ""
-          echo "========================================"
-          echo "Changed files"
-          echo "========================================"
-
-          git diff --cached --name-status
-
-      # ======================================================
-      # Commit & Push
-      # ======================================================
-
-      - name: Commit and push
-        run: |
+          git add docs/data
+          git add docs/monitors.json
 
           if git diff --cached --quiet; then
-
             echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit \
+            -m "Update monitored shop data"
+
+      # ==================================================
+      # 11. 最新mainを取得してpush
+      #
+      # git pull --rebase は使用しない
+      #
+      # Actions開始後にmainへ別commitが入った場合は
+      # origin/mainへrebaseしてからpushする
+      # ==================================================
+      - name: Push changes
+        run: |
+
+          git fetch origin main
+
+          LOCAL_COMMIT="$(git rev-parse HEAD)"
+          REMOTE_COMMIT="$(git rev-parse origin/main)"
+
+          echo "Local : $LOCAL_COMMIT"
+          echo "Remote: $REMOTE_COMMIT"
+
+
+          # ------------------------------------------------
+          # origin/mainが現在のコミットの祖先なら
+          # そのままpush可能
+          # ------------------------------------------------
+          if git merge-base --is-ancestor \
+            "$REMOTE_COMMIT" \
+            "$LOCAL_COMMIT"
+          then
+
+            echo "Local branch contains origin/main."
 
           else
 
-            git commit \
-              -m "Update FINDME STORE monitoring data"
+            echo "origin/main has newer commits."
 
-            git push origin HEAD:main
+            echo "Rebasing generated commit..."
+
+            git rebase origin/main
 
           fi
+
+
+          # ------------------------------------------------
+          # mainへpush
+          # ------------------------------------------------
+          git push origin HEAD:main
