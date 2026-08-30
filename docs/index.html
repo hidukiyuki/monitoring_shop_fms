@@ -15,11 +15,11 @@
 
       body {
         margin: 0;
-        padding: 0;
 
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
         background: #f5f5f5;
+
         color: #222;
       }
 
@@ -29,6 +29,7 @@
 
       header {
         background: #111;
+
         color: #fff;
 
         padding: 20px;
@@ -47,7 +48,7 @@
       }
 
       .container {
-        max-width: 1500px;
+        max-width: 1600px;
 
         margin: 0 auto;
 
@@ -61,9 +62,9 @@
       .tabs {
         display: flex;
 
-        gap: 8px;
-
         flex-wrap: wrap;
+
+        gap: 8px;
 
         margin-bottom: 20px;
       }
@@ -93,15 +94,17 @@
       }
 
       /* =====================================================
-       Main controls
+       Controls
        ===================================================== */
 
       .main-controls {
         display: flex;
 
-        gap: 10px;
-
         flex-wrap: wrap;
+
+        align-items: center;
+
+        gap: 10px;
 
         margin-bottom: 15px;
       }
@@ -126,7 +129,7 @@
       }
 
       .sort-box {
-        width: 240px;
+        width: 250px;
       }
 
       /* =====================================================
@@ -136,11 +139,11 @@
       .view-switch {
         display: flex;
 
-        gap: 5px;
-
-        background: #fff;
+        gap: 4px;
 
         padding: 4px;
+
+        background: #fff;
 
         border: 1px solid #ddd;
 
@@ -150,7 +153,7 @@
       .view-button {
         border: 0;
 
-        padding: 8px 12px;
+        padding: 8px 14px;
 
         border-radius: 6px;
 
@@ -168,7 +171,7 @@
       }
 
       /* =====================================================
-       Filter panel
+       Filters
        ===================================================== */
 
       .filter-panel {
@@ -176,11 +179,11 @@
 
         padding: 15px;
 
+        border: 1px solid #e5e5e5;
+
         border-radius: 10px;
 
         margin-bottom: 20px;
-
-        border: 1px solid #e5e5e5;
       }
 
       .filter-section {
@@ -192,11 +195,11 @@
       }
 
       .filter-title {
+        margin-bottom: 8px;
+
         font-size: 13px;
 
         font-weight: 700;
-
-        margin-bottom: 8px;
       }
 
       .filter-buttons {
@@ -210,22 +213,17 @@
       .filter-button {
         border: 1px solid #ccc;
 
-        background: #fff;
-
-        color: #333;
-
         padding: 6px 10px;
 
         border-radius: 20px;
 
+        background: #fff;
+
+        color: #333;
+
         cursor: pointer;
 
         font-size: 12px;
-
-        transition:
-          background 0.15s,
-          color 0.15s,
-          border-color 0.15s;
       }
 
       .filter-button:hover {
@@ -233,27 +231,27 @@
       }
 
       .filter-button.active {
+        border-color: #111;
+
         background: #111;
 
         color: #fff;
-
-        border-color: #111;
       }
 
       .clear-filters {
+        margin-top: 5px;
+
         border: 0;
 
-        background: #eee;
-
-        padding: 6px 10px;
+        padding: 7px 11px;
 
         border-radius: 6px;
+
+        background: #eee;
 
         cursor: pointer;
 
         font-size: 12px;
-
-        margin-top: 5px;
       }
 
       .clear-filters:hover {
@@ -275,29 +273,29 @@
 
         padding: 12px 15px;
 
-        background: #fff;
-
         border-radius: 8px;
+
+        background: #fff;
 
         font-size: 14px;
       }
 
       /* =====================================================
-       Error
+       Error / Loading
        ===================================================== */
 
       .error {
-        padding: 15px;
-
         margin-bottom: 20px;
 
-        background: #ffe5e5;
+        padding: 15px;
 
         border: 1px solid #ffb0b0;
 
-        color: #b00000;
-
         border-radius: 8px;
+
+        background: #ffe5e5;
+
+        color: #b00000;
 
         white-space: pre-wrap;
       }
@@ -323,11 +321,11 @@
       }
 
       .product {
-        background: #fff;
+        overflow: hidden;
 
         border-radius: 10px;
 
-        overflow: hidden;
+        background: #fff;
 
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
@@ -343,6 +341,8 @@
       }
 
       .product-image {
+        display: block;
+
         width: 100%;
 
         aspect-ratio: 1 / 1;
@@ -350,8 +350,6 @@
         object-fit: cover;
 
         background: #eee;
-
-        display: block;
       }
 
       .product-body {
@@ -359,37 +357,63 @@
       }
 
       .product-title {
+        margin-bottom: 8px;
+
         font-size: 17px;
 
         font-weight: 600;
-
-        margin-bottom: 8px;
 
         line-height: 1.4;
       }
 
       .product-price {
+        margin-bottom: 10px;
+
         font-size: 18px;
 
         font-weight: 700;
+      }
 
-        margin-bottom: 10px;
+      .availability {
+        display: inline-block;
+
+        margin-bottom: 8px;
+
+        padding: 5px 8px;
+
+        border-radius: 5px;
+
+        font-size: 12px;
+
+        font-weight: 600;
+      }
+
+      .available {
+        background: #e5f7e5;
+
+        color: #168316;
+      }
+
+      .soldout {
+        background: #eee;
+
+        color: #777;
       }
 
       .sku {
+        margin: 0;
+
         font-size: 13px;
 
         color: #555;
-
-        margin-bottom: 5px;
       }
 
-      .date {
+      .category {
+        margin-top: 4px;
+
         font-size: 12px;
 
-        color: #777;
-
-        margin-top: 4px;
+        color: #555;
       }
 
       .tags {
@@ -405,39 +429,17 @@
       .tag {
         padding: 4px 7px;
 
-        background: #eee;
-
         border-radius: 5px;
+
+        background: #eee;
 
         font-size: 11px;
       }
 
-      /* =====================================================
-       Availability
-       ===================================================== */
-
-      .availability {
-        display: inline-block;
-
-        padding: 5px 8px;
-
-        border-radius: 5px;
+      .date {
+        margin-top: 5px;
 
         font-size: 12px;
-
-        font-weight: 600;
-
-        margin-bottom: 8px;
-      }
-
-      .available {
-        background: #e5f7e5;
-
-        color: #168316;
-      }
-
-      .soldout {
-        background: #eee;
 
         color: #777;
       }
@@ -449,9 +451,9 @@
 
         color: #0066cc;
 
-        text-decoration: none;
-
         font-size: 13px;
+
+        text-decoration: none;
       }
 
       .product-link:hover {
@@ -459,7 +461,7 @@
       }
 
       /* =====================================================
-       List view
+       1-row view
        ===================================================== */
 
       .products.list-view {
@@ -476,10 +478,9 @@
         grid-template-columns:
           80px
           minmax(180px, 2fr)
-          minmax(110px, 1fr)
+          minmax(260px, 2fr)
           minmax(100px, 1fr)
-          minmax(160px, 1fr)
-          minmax(160px, 1fr)
+          minmax(180px, 1.5fr)
           auto;
 
         align-items: center;
@@ -488,9 +489,9 @@
 
         padding: 10px 15px;
 
-        border-radius: 8px;
-
         overflow: visible;
+
+        border-radius: 8px;
 
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
       }
@@ -513,40 +514,94 @@
 
       .products.list-view .availability {
         margin: 0;
+
+        white-space: nowrap;
       }
 
       .products.list-view .product-title {
         margin: 0;
 
         font-size: 14px;
+
+        line-height: 1.4;
       }
 
       .products.list-view .product-price {
         margin: 0;
 
         font-size: 15px;
-      }
-
-      .products.list-view .sku {
-        margin: 0;
-
-        font-size: 12px;
 
         white-space: nowrap;
       }
 
-      .products.list-view .date {
+      /*
+     * SKU + カテゴリ + タグ
+     */
+
+      .product-meta {
+        min-width: 0;
+      }
+
+      .products.list-view .product-meta {
+        display: block;
+      }
+
+      .products.list-view .product-meta .sku {
         margin: 0;
 
         font-size: 12px;
 
-        color: #777;
+        line-height: 1.5;
 
         white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
       }
 
-      .products.list-view .tags {
-        display: none;
+      .products.list-view .product-meta .category {
+        margin-top: 2px;
+
+        font-size: 12px;
+
+        line-height: 1.5;
+      }
+
+      .products.list-view .product-meta .tags {
+        display: flex;
+
+        margin-top: 4px;
+
+        gap: 4px;
+      }
+
+      .products.list-view .product-meta .tag {
+        padding: 3px 6px;
+
+        font-size: 10px;
+      }
+
+      /*
+     * 作成日 + 更新日
+     */
+
+      .product-dates {
+        min-width: 0;
+      }
+
+      .products.list-view .product-dates {
+        display: block;
+      }
+
+      .products.list-view .product-dates .date {
+        margin: 0;
+
+        font-size: 12px;
+
+        line-height: 1.6;
+
+        white-space: nowrap;
       }
 
       .products.list-view .product-link {
@@ -564,10 +619,9 @@
           grid-template-columns:
             70px
             minmax(150px, 2fr)
-            100px
-            100px
-            140px
-            140px
+            minmax(220px, 2fr)
+            90px
+            160px
             auto;
         }
       }
@@ -577,16 +631,20 @@
           grid-template-columns:
             70px
             1fr
-            100px
-            100px;
+            1fr
+            90px;
         }
 
-        .products.list-view .date {
-          grid-column: 2;
+        .products.list-view .product-dates {
+          grid-column: 2 / 4;
+        }
+
+        .products.list-view .availability {
+          grid-column: 4;
         }
 
         .products.list-view .product-link {
-          grid-column: 3 / 5;
+          grid-column: 2 / 5;
         }
       }
 
@@ -619,7 +677,7 @@
             1fr
             auto;
 
-          gap: 10px;
+          gap: 8px;
 
           padding: 10px;
         }
@@ -634,16 +692,16 @@
           grid-column: 2;
         }
 
+        .products.list-view .product-meta {
+          grid-column: 2 / 4;
+        }
+
         .products.list-view .product-price {
           grid-column: 2;
         }
 
-        .products.list-view .sku {
-          grid-column: 2;
-        }
-
-        .products.list-view .date {
-          grid-column: 2;
+        .products.list-view .product-dates {
+          grid-column: 2 / 4;
         }
 
         .products.list-view .availability {
@@ -653,9 +711,7 @@
         }
 
         .products.list-view .product-link {
-          grid-column: 3;
-
-          grid-row: 2;
+          grid-column: 2 / 4;
         }
       }
     </style>
@@ -688,13 +744,9 @@
       <div id="controls" style="display: none">
         ```
         <div class="main-controls">
-          <!-- Search -->
-
           <div class="search-box">
             <input id="search" type="search" placeholder="商品名・SKUを検索" />
           </div>
-
-          <!-- Sort -->
 
           <div class="sort-box">
             <select id="priceSort">
@@ -718,8 +770,6 @@
             </select>
           </div>
 
-          <!-- View switch -->
-
           <div class="view-switch">
             <button
               id="cardViewButton"
@@ -740,23 +790,17 @@
      ================================================= -->
 
         <div class="filter-panel">
-          <!-- Availability -->
-
           <div class="filter-section">
             <div class="filter-title">販売状態</div>
 
             <div id="availabilityFilters" class="filter-buttons"></div>
           </div>
 
-          <!-- Category -->
-
           <div class="filter-section">
             <div class="filter-title">カテゴリ</div>
 
             <div id="categoryFilters" class="filter-buttons"></div>
           </div>
-
-          <!-- Tags -->
 
           <div class="filter-section">
             <div class="filter-title">タグ</div>
@@ -794,7 +838,7 @@
       "use strict";
 
       /* =========================================================
-   Global state
+   State
    ========================================================= */
 
       let monitors = [];
@@ -805,11 +849,11 @@
 
       let viewMode = "card";
 
-      let selectedTags = new Set();
+      const selectedTags = new Set();
 
-      let selectedCategories = new Set();
+      const selectedCategories = new Set();
 
-      let selectedAvailability = new Set();
+      const selectedAvailability = new Set();
 
       /* =========================================================
    DOM
@@ -907,11 +951,7 @@
 
         const time = new Date(value).getTime();
 
-        if (Number.isNaN(time)) {
-          return 0;
-        }
-
-        return time;
+        return Number.isNaN(time) ? 0 : time;
       }
 
       function formatPrice(value) {
@@ -922,34 +962,6 @@
         }
 
         return new Intl.NumberFormat("ja-JP").format(number) + "円";
-      }
-
-      /* =========================================================
-   Monitor config
-   ========================================================= */
-
-      async function loadMonitors() {
-        const response = await fetch("./monitors.json?t=" + Date.now());
-
-        if (!response.ok) {
-          throw new Error(
-            "monitors.json の取得に失敗しました: HTTP " + response.status,
-          );
-        }
-
-        const data = await response.json();
-
-        if (Array.isArray(data)) {
-          monitors = data;
-        } else if (data && Array.isArray(data.monitors)) {
-          monitors = data.monitors;
-        } else {
-          throw new Error("monitors.json の形式が正しくありません");
-        }
-
-        if (monitors.length === 0) {
-          throw new Error("監視対象がありません");
-        }
       }
 
       /* =========================================================
@@ -981,6 +993,36 @@
       }
 
       /* =========================================================
+   Load monitors.json
+   ========================================================= */
+
+      async function loadMonitors() {
+        const response = await fetch("./monitors.json?t=" + Date.now(), {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            "monitors.json の取得に失敗しました: HTTP " + response.status,
+          );
+        }
+
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          monitors = data;
+        } else if (data && Array.isArray(data.monitors)) {
+          monitors = data.monitors;
+        } else {
+          throw new Error("monitors.json の形式が正しくありません");
+        }
+
+        if (monitors.length === 0) {
+          throw new Error("監視対象がありません");
+        }
+      }
+
+      /* =========================================================
    Tabs
    ========================================================= */
 
@@ -992,7 +1034,11 @@
 
           button.type = "button";
 
-          button.className = "tab" + (index === 0 ? " active" : "");
+          button.className = "tab";
+
+          if (index === 0) {
+            button.classList.add("active");
+          }
 
           button.textContent = getMonitorName(monitor);
 
@@ -1011,7 +1057,7 @@
       }
 
       /* =========================================================
-   Products JSON
+   Load products
    ========================================================= */
 
       async function loadProducts(monitor) {
@@ -1019,11 +1065,16 @@
 
         const separator = path.includes("?") ? "&" : "?";
 
-        const response = await fetch(path + separator + "t=" + Date.now());
+        const response = await fetch(path + separator + "t=" + Date.now(), {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           throw new Error(
-            "products.json の取得に失敗しました: HTTP " + response.status,
+            "products.json の取得に失敗しました: HTTP " +
+              response.status +
+              "\n" +
+              path,
           );
         }
 
@@ -1037,7 +1088,7 @@
           return data.products;
         }
 
-        throw new Error("products.json の形式が正しくありません");
+        throw new Error("products.json の形式が正しくありません\n" + path);
       }
 
       /* =========================================================
@@ -1070,6 +1121,18 @@
         return Number.isNaN(value) ? 0 : value;
       }
 
+      function getCreatedAt(product) {
+        const variant = getVariant(product);
+
+        return variant?.created_at || product.created_at || "";
+      }
+
+      function getUpdatedAt(product) {
+        const variant = getVariant(product);
+
+        return variant?.updated_at || product.updated_at || "";
+      }
+
       function isAvailable(product) {
         if (Array.isArray(product.variants) && product.variants.length > 0) {
           return product.variants.some(
@@ -1082,18 +1145,6 @@
         }
 
         return false;
-      }
-
-      function getCreatedAt(product) {
-        const variant = getVariant(product);
-
-        return variant?.created_at || product.created_at || "";
-      }
-
-      function getUpdatedAt(product) {
-        const variant = getVariant(product);
-
-        return variant?.updated_at || product.updated_at || "";
       }
 
       function getImage(product) {
@@ -1151,22 +1202,22 @@
       }
 
       function getCategories(product) {
-        const category =
+        const value =
           product.category || product.product_type || product.type || "";
 
-        if (Array.isArray(category)) {
-          return category.map((item) => String(item).trim()).filter(Boolean);
+        if (Array.isArray(value)) {
+          return value.map((item) => String(item).trim()).filter(Boolean);
         }
 
-        if (typeof category === "string" && category.trim()) {
-          return [category.trim()];
+        if (typeof value === "string" && value.trim()) {
+          return [value.trim()];
         }
 
         return [];
       }
 
       /* =========================================================
-   Collect filters
+   Filters
    ========================================================= */
 
       function collectFilterValues() {
@@ -1193,16 +1244,16 @@
         };
       }
 
-      /* =========================================================
-   Filter button
-   ========================================================= */
-
       function renderFilterButton(container, label, active, callback) {
         const button = document.createElement("button");
 
         button.type = "button";
 
-        button.className = "filter-button" + (active ? " active" : "");
+        button.className = "filter-button";
+
+        if (active) {
+          button.classList.add("active");
+        }
 
         button.textContent = label;
 
@@ -1210,10 +1261,6 @@
 
         container.appendChild(button);
       }
-
-      /* =========================================================
-   Render filters
-   ========================================================= */
 
       function renderFilters() {
         availabilityFiltersEl.innerHTML = "";
@@ -1264,9 +1311,9 @@
      Categories
      ------------------------------------------------------- */
 
-        const { categories, tags } = collectFilterValues();
+        const values = collectFilterValues();
 
-        if (categories.length === 0) {
+        if (values.categories.length === 0) {
           const empty = document.createElement("span");
 
           empty.textContent = "カテゴリなし";
@@ -1277,7 +1324,7 @@
 
           categoryFiltersEl.appendChild(empty);
         } else {
-          categories.forEach((category) => {
+          values.categories.forEach((category) => {
             renderFilterButton(
               categoryFiltersEl,
               category,
@@ -1301,7 +1348,7 @@
      Tags
      ------------------------------------------------------- */
 
-        if (tags.length === 0) {
+        if (values.tags.length === 0) {
           const empty = document.createElement("span");
 
           empty.textContent = "タグなし";
@@ -1312,7 +1359,7 @@
 
           tagFiltersEl.appendChild(empty);
         } else {
-          tags.forEach((tag) => {
+          values.tags.forEach((tag) => {
             renderFilterButton(tagFiltersEl, tag, selectedTags.has(tag), () => {
               if (selectedTags.has(tag)) {
                 selectedTags.delete(tag);
@@ -1354,9 +1401,7 @@
      ------------------------------------------------------- */
 
         if (selectedAvailability.size > 0) {
-          const available = isAvailable(product);
-
-          const key = available ? "available" : "soldout";
+          const key = isAvailable(product) ? "available" : "soldout";
 
           if (!selectedAvailability.has(key)) {
             return false;
@@ -1364,7 +1409,7 @@
         }
 
         /* -------------------------------------------------------
-     Categories
+     Category
      ------------------------------------------------------- */
 
         if (selectedCategories.size > 0) {
@@ -1406,7 +1451,7 @@
         /*
          * 指定の並び順
          *
-         * JSONの並び順を維持
+         * JSONの並び順をそのまま維持
          */
 
         if (sort === "default") {
@@ -1510,8 +1555,8 @@
         let products = originalProducts.filter(matchesFilter);
 
         /*
-         * filter() で作った配列を
-         * sortするので元データは変更しない
+         * filter() の結果なので
+         * 元のoriginalProductsは変更しない
          */
 
         products = sortProducts(products);
@@ -1542,9 +1587,11 @@
 
           const updatedAt = getUpdatedAt(product);
 
-          const url = getProductUrl(product);
+          const categories = getCategories(product);
 
           const tags = getTags(product);
+
+          const url = getProductUrl(product);
 
           /* ---------------------------------------------------
          Image
@@ -1613,9 +1660,16 @@
 
           body.appendChild(priceEl);
 
-          /* ---------------------------------------------------
-         SKU
-         --------------------------------------------------- */
+          /* ===================================================
+         SKU / Category / Tags
+         同じ列
+         =================================================== */
+
+          const metaEl = document.createElement("div");
+
+          metaEl.className = "product-meta";
+
+          /* SKU */
 
           const skuEl = document.createElement("div");
 
@@ -1623,43 +1677,27 @@
 
           skuEl.innerHTML = "<strong>SKU:</strong> " + escapeHtml(sku || "-");
 
-          body.appendChild(skuEl);
+          metaEl.appendChild(skuEl);
 
-          /* ---------------------------------------------------
-         Created
-         --------------------------------------------------- */
+          /* Category */
 
-          const createdEl = document.createElement("div");
+          const categoryEl = document.createElement("div");
 
-          createdEl.className = "date";
+          categoryEl.className = "category";
 
-          createdEl.innerHTML =
-            "<strong>作成:</strong> " + escapeHtml(formatDate(createdAt));
+          categoryEl.innerHTML =
+            "<strong>カテゴリ:</strong> " +
+            escapeHtml(categories.length > 0 ? categories.join(", ") : "-");
 
-          body.appendChild(createdEl);
+          metaEl.appendChild(categoryEl);
 
-          /* ---------------------------------------------------
-         Updated
-         --------------------------------------------------- */
+          /* Tags */
 
-          const updatedEl = document.createElement("div");
+          const tagsEl = document.createElement("div");
 
-          updatedEl.className = "date";
-
-          updatedEl.innerHTML =
-            "<strong>更新:</strong> " + escapeHtml(formatDate(updatedAt));
-
-          body.appendChild(updatedEl);
-
-          /* ---------------------------------------------------
-         Tags
-         --------------------------------------------------- */
+          tagsEl.className = "tags";
 
           if (tags.length > 0) {
-            const tagsEl = document.createElement("div");
-
-            tagsEl.className = "tags";
-
             tags.forEach((tag) => {
               const tagEl = document.createElement("span");
 
@@ -1669,13 +1707,44 @@
 
               tagsEl.appendChild(tagEl);
             });
-
-            body.appendChild(tagsEl);
           }
 
-          /* ---------------------------------------------------
+          metaEl.appendChild(tagsEl);
+
+          body.appendChild(metaEl);
+
+          /* ===================================================
+         Created / Updated
+         同じ列
+         =================================================== */
+
+          const datesEl = document.createElement("div");
+
+          datesEl.className = "product-dates";
+
+          const createdEl = document.createElement("div");
+
+          createdEl.className = "date";
+
+          createdEl.innerHTML =
+            "<strong>作成:</strong> " + escapeHtml(formatDate(createdAt));
+
+          datesEl.appendChild(createdEl);
+
+          const updatedEl = document.createElement("div");
+
+          updatedEl.className = "date";
+
+          updatedEl.innerHTML =
+            "<strong>更新:</strong> " + escapeHtml(formatDate(updatedAt));
+
+          datesEl.appendChild(updatedEl);
+
+          body.appendChild(datesEl);
+
+          /* ===================================================
          Product link
-         --------------------------------------------------- */
+         =================================================== */
 
           if (url) {
             const link = document.createElement("a");
@@ -1749,7 +1818,7 @@
         clearError();
 
         /*
-         * タブ切替時はフィルターをリセット
+         * タブ切替時にフィルターをリセット
          */
 
         selectedTags.clear();
@@ -1846,7 +1915,7 @@
       });
 
       /* =========================================================
-   Initial
+   Init
    ========================================================= */
 
       async function init() {
