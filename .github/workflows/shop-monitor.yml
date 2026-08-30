@@ -1,32 +1,20 @@
-name: Monitor FINDME STORE
+name: FINDME STORE Monitor
 
 on:
+  # 6時間ごと
   schedule:
-    # 6時間ごと
-    #
-    # UTC:
-    # 00:17
-    # 06:17
-    # 12:17
-    # 18:17
-    #
-    # JST:
-    # 09:17
-    # 15:17
-    # 21:17
-    # 03:17
     - cron: "17 */6 * * *"
 
+  # GitHub画面から手動実行可能
   workflow_dispatch:
+
+# 同じ監視処理が同時実行されるのを防ぐ
+concurrency:
+  group: shop-monitor
+  cancel-in-progress: false
 
 permissions:
   contents: write
-
-# 同じWorkflowを同時に実行しない
-concurrency:
-  group: findme-store-monitor
-
-  cancel-in-progress: false
 
 jobs:
   monitor:
@@ -37,10 +25,8 @@ jobs:
       # Checkout
       # ======================================================
 
-      - name: Checkout
-
-        uses: actions/checkout@v5
-
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -48,163 +34,121 @@ jobs:
       # Python
       # ======================================================
 
-      - name: Setup Python
-
-        uses: actions/setup-python@v6
-
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.x"
 
       # ======================================================
-      # Dependencies
+      # Git configuration
       # ======================================================
-
-      - name: Install dependencies
-
-        run: |
-
-          python -m pip install --upgrade pip
-
-          pip install requests
-
-      # ======================================================
-      # Validate config
-      # ======================================================
-
-      - name: Validate monitors.json
-
-        run: |
-
-          python - <<'PY'
-
-          import json
-
-          from pathlib import Path
-
-
-          path = Path(
-              "config/monitors.json"
-          )
-
-
-          with path.open(
-              encoding="utf-8"
-          ) as f:
-
-              data = json.load(f)
-
-
-          monitors = data.get(
-              "monitors"
-          )
-
-
-          if not isinstance(
-              monitors,
-              list
-          ) or not monitors:
-
-              raise SystemExit(
-                  "No monitors configured."
-              )
-
-
-          print(
-              f"Monitors: {len(monitors)}"
-          )
-
-
-          for monitor in monitors:
-
-              print(
-                  f"- {monitor['name']}"
-                  f" / "
-                  f"{monitor['collection']}"
-                  f" / "
-                  f"pages={monitor['pages']}"
-              )
-
-          PY
-
-      # ======================================================
-      # GitHub Pages用設定
-      # ======================================================
-
-      - name: Copy monitors.json to Pages
-
-        run: |
-
-          mkdir -p docs
-
-          cp \
-            config/monitors.json \
-            docs/monitors.json
-
-      # ======================================================
-      # Monitor
-      # ======================================================
-
-      - name: Run monitor
-
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-
-        run: |
-
-          python scripts/monitor_shop.py
-
-      # ======================================================
-      # Git status
-      # ======================================================
-
-      - name: Run monitor
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: |
-          python scripts/monitor_shop.py
-
-      - name: Show generated files
-        run: |
-          echo "===== data ====="
-          find data -type f -maxdepth 3 -print
-
-          echo "===== docs/data ====="
-          find docs/data -type f -maxdepth 3 -print
-
-          echo "===== git status ====="
-          git status --short
-
-      - name: Copy monitors.json to Pages
-        run: |
-          mkdir -p docs
-          cp config/monitors.json docs/monitors.json
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+      # ======================================================
+      # Get latest main
+      #
+      # 重要:
+      # monitor_shop.py より前に実行する
+      # ======================================================
+
       - name: Pull latest changes
         run: |
           git pull --rebase origin main
+
+      # ======================================================
+      # Run monitor
+      # ======================================================
+
+      - name: Run monitor
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python scripts/monitor_shop.py
+
+      # ======================================================
+      # Copy monitors.json for GitHub Pages
+      # ======================================================
+
+      - name: Copy monitors.json to Pages
+        run: |
+          mkdir -p docs
+          cp config/monitors.json docs/monitors.json
+
+      # ======================================================
+      # Debug
+      #
+      # JSON / CSVが本当に生成されているか確認
+      # ======================================================
+
+      - name: Show generated files
+        run: |
+          echo "========================================"
+          echo "data/"
+          echo "========================================"
+
+          find data -type f -print || true
+
+          echo ""
+          echo "========================================"
+          echo "docs/data/"
+          echo "========================================"
+
+          find docs/data -type f -print || true
+
+          echo ""
+          echo "========================================"
+          echo "Git status"
+          echo "========================================"
+
+          git status --short
+
+      # ======================================================
+      # Stage
+      # ======================================================
 
       - name: Stage generated files
         run: |
           git add -A
 
+      # ======================================================
+      # Show staged changes
+      # ======================================================
+
       - name: Show staged changes
         run: |
-          echo "===== staged files ====="
+          echo "========================================"
+          echo "Staged files"
+          echo "========================================"
+
           git status --short
 
-      - name: Commit
-        run: |
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            git commit -m "Update FINDME STORE monitoring data"
-          fi
+          echo ""
+          echo "========================================"
+          echo "Changed files"
+          echo "========================================"
 
-      - name: Push
+          git diff --cached --name-status
+
+      # ======================================================
+      # Commit & Push
+      # ======================================================
+
+      - name: Commit and push
         run: |
-          git push origin HEAD:main
+
+          if git diff --cached --quiet; then
+
+            echo "No changes to commit."
+
+          else
+
+            git commit \
+              -m "Update FINDME STORE monitoring data"
+
+            git push origin HEAD:main
+
+          fi
