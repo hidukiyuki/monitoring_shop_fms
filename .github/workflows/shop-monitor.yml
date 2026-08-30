@@ -15,7 +15,6 @@ on:
     # 15:17
     # 21:17
     # 03:17
-    #
     - cron: "17 */6 * * *"
 
   workflow_dispatch:
@@ -23,7 +22,7 @@ on:
 permissions:
   contents: write
 
-# 同じ監視が同時に走るのを防ぐ
+# 同じWorkflowを同時に実行しない
 concurrency:
   group: findme-store-monitor
 
@@ -57,7 +56,7 @@ jobs:
           python-version: "3.12"
 
       # ======================================================
-      # Install
+      # Dependencies
       # ======================================================
 
       - name: Install dependencies
@@ -72,7 +71,7 @@ jobs:
       # Validate config
       # ======================================================
 
-      - name: Validate monitor config
+      - name: Validate monitors.json
 
         run: |
 
@@ -100,25 +99,28 @@ jobs:
           )
 
 
-          assert isinstance(
+          if not isinstance(
               monitors,
               list
-          )
+          ) or not monitors:
 
-
-          assert monitors
+              raise SystemExit(
+                  "No monitors configured."
+              )
 
 
           print(
-              f"Configured monitors: "
-              f"{len(monitors)}"
+              f"Monitors: {len(monitors)}"
           )
 
 
           for monitor in monitors:
 
               print(
-                  f"- {monitor['name']}: "
+                  f"- {monitor['name']}"
+                  f" / "
+                  f"{monitor['collection']}"
+                  f" / "
                   f"pages={monitor['pages']}"
               )
 
@@ -128,9 +130,11 @@ jobs:
       # GitHub Pages用設定
       # ======================================================
 
-      - name: Copy config for GitHub Pages
+      - name: Copy monitors.json to Pages
 
         run: |
+
+          mkdir -p docs
 
           cp \
             config/monitors.json \
@@ -140,7 +144,7 @@ jobs:
       # Monitor
       # ======================================================
 
-      - name: Monitor shop
+      - name: Run monitor
 
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -150,7 +154,7 @@ jobs:
           python scripts/monitor_shop.py
 
       # ======================================================
-      # Check changes
+      # Git status
       # ======================================================
 
       - name: Check changes
@@ -175,7 +179,7 @@ jobs:
       # Commit
       # ======================================================
 
-      - name: Commit and push
+      - name: Commit data
 
         if: steps.changes.outputs.changed == 'true'
 
@@ -198,14 +202,27 @@ jobs:
 
 
           git commit \
-            -m "Update FINDME STORE data"
+            -m "Update FINDME STORE monitoring data"
 
+      # ======================================================
+      # Rebase + Push
+      # ======================================================
 
-          # 他の変更が先にpushされていた場合の対策
+      - name: Pull latest changes
+
+        if: steps.changes.outputs.changed == 'true'
+
+        run: |
+
           git pull \
             --rebase \
             origin main
 
+      - name: Push changes
+
+        if: steps.changes.outputs.changed == 'true'
+
+        run: |
 
           git push \
             origin main
