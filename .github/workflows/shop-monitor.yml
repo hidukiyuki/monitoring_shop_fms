@@ -157,72 +157,54 @@ jobs:
       # Git status
       # ======================================================
 
-      - name: Check changes
-
-        id: changes
-
+      - name: Run monitor
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
+          python scripts/monitor_shop.py
 
-          if git diff --quiet; then
-
-            echo "changed=false" \
-              >> "$GITHUB_OUTPUT"
-
-          else
-
-            echo "changed=true" \
-              >> "$GITHUB_OUTPUT"
-
-          fi
-
-      # ======================================================
-      # Commit
-      # ======================================================
-
-      - name: Commit data
-
-        if: steps.changes.outputs.changed == 'true'
-
+      - name: Show generated files
         run: |
+          echo "===== data ====="
+          find data -type f -maxdepth 3 -print
 
-          git config \
-            user.name \
-            "github-actions[bot]"
+          echo "===== docs/data ====="
+          find docs/data -type f -maxdepth 3 -print
 
+          echo "===== git status ====="
+          git status --short
 
-          git config \
-            user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
+      - name: Copy monitors.json to Pages
+        run: |
+          mkdir -p docs
+          cp config/monitors.json docs/monitors.json
 
-
-          git add \
-            config/ \
-            data/ \
-            docs/
-
-
-          git commit \
-            -m "Update FINDME STORE monitoring data"
-
-      # ======================================================
-      # Rebase + Push
-      # ======================================================
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Pull latest changes
-
-        if: steps.changes.outputs.changed == 'true'
-
         run: |
+          git pull --rebase origin main
 
-          git pull \
-            --rebase \
-            origin main
-
-      - name: Push changes
-
-        if: steps.changes.outputs.changed == 'true'
-
+      - name: Stage generated files
         run: |
+          git add -A
 
-          git push \
-            origin main
+      - name: Show staged changes
+        run: |
+          echo "===== staged files ====="
+          git status --short
+
+      - name: Commit
+        run: |
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update FINDME STORE monitoring data"
+          fi
+
+      - name: Push
+        run: |
+          git push origin HEAD:main
