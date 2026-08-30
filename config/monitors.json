@@ -48,6 +48,13 @@
       "url": "https://findmestore.thinkr.jp/collections/girlsrevolutionproject/products.json",
       "pages": [1, 2],
       "products_path": "./data/girlsrevolutionproject/products.json"
+    },
+    {
+      "name": "ALL",
+      "collection": "all",
+      "url": "https://findmestore.thinkr.jp/products.json",
+      "pages": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+      "products_path": "./data/all/products.json"
     }
   ]
 }
