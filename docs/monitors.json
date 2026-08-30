@@ -1,0 +1,16 @@
+{
+  "monitors": [
+    {
+      "collection": "isekaijoucho",
+      "name": "ヰ世界情緒",
+      "url": "https://findmestore.thinkr.jp/collections/isekaijoucho/products.json",
+      "pages": [1, 2]
+    },
+    {
+      "collection": "v-w-p",
+      "name": "V.W.P",
+      "url": "https://findmestore.thinkr.jp/collections/v-w-p/products.json",
+      "pages": [1, 2]
+    }
+  ]
+}
