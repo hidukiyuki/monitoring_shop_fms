@@ -2,6 +2,8 @@ name: Monitor FINDME STORE
 
 on:
   schedule:
+    # UTC
+    # JSTでは 03:17 / 09:17 / 15:17 / 21:17
     - cron: "17 */6 * * *"
 
   workflow_dispatch:
@@ -9,25 +11,23 @@ on:
 permissions:
   contents: write
 
+# 同じ監視が同時に走らないようにする
+concurrency:
+  group: findme-store-monitor
+
+  cancel-in-progress: false
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
 
     steps:
-      # --------------------------------------------------
-      # Checkout
-      # --------------------------------------------------
-
-      - name: Checkout repository
+      - name: Checkout
 
         uses: actions/checkout@v5
 
         with:
           fetch-depth: 0
-
-      # --------------------------------------------------
-      # Python
-      # --------------------------------------------------
 
       - name: Setup Python
 
@@ -35,10 +35,6 @@ jobs:
 
         with:
           python-version: "3.12"
-
-      # --------------------------------------------------
-      # Dependencies
-      # --------------------------------------------------
 
       - name: Install dependencies
 
@@ -48,10 +44,6 @@ jobs:
 
           pip install requests
 
-      # --------------------------------------------------
-      # Monitor
-      # --------------------------------------------------
-
       - name: Monitor shop
 
         env:
@@ -60,10 +52,6 @@ jobs:
         run: |
 
           python scripts/monitor_shop.py
-
-      # --------------------------------------------------
-      # Check git changes
-      # --------------------------------------------------
 
       - name: Check changes
 
@@ -83,10 +71,6 @@ jobs:
 
           fi
 
-      # --------------------------------------------------
-      # Commit
-      # --------------------------------------------------
-
       - name: Commit and push
 
         if: steps.changes.outputs.changed == 'true'
@@ -105,11 +89,14 @@ jobs:
           git add \
             data/products.json \
             data/products.csv \
-            docs/data/products.json
+            data/history.json \
+            data/history.csv \
+            docs/data/products.json \
+            docs/data/history.json
 
 
           git commit \
-            -m "Update FINDME STORE product data"
+            -m "Update FINDME STORE data"
 
 
           git pull \

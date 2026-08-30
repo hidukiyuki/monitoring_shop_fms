@@ -9,7 +9,7 @@ import requests
 
 
 # ============================================================
-# Settings
+# 設定
 # ============================================================
 
 BASE_URL = (
@@ -17,20 +17,31 @@ BASE_URL = (
     "collections/isekaijoucho/products.json"
 )
 
+# 監視するページ
 PAGES = [1, 2]
 
 STORE_BASE = "https://findmestore.thinkr.jp"
 
 DATA_DIR = Path("data")
 
-JSON_PATH = DATA_DIR / "products.json"
-CSV_PATH = DATA_DIR / "products.csv"
+PRODUCTS_JSON = DATA_DIR / "products.json"
+PRODUCTS_CSV = DATA_DIR / "products.csv"
 
-# GitHub Pages用
+HISTORY_JSON = DATA_DIR / "history.json"
+HISTORY_CSV = DATA_DIR / "history.csv"
+
+# GitHub Pages
 PAGES_DATA_DIR = Path("docs/data")
-PAGES_JSON_PATH = PAGES_DATA_DIR / "products.json"
 
-# 前回の商品数に対して、これ未満になったら異常扱い
+PAGES_PRODUCTS_JSON = (
+    PAGES_DATA_DIR / "products.json"
+)
+
+PAGES_HISTORY_JSON = (
+    PAGES_DATA_DIR / "history.json"
+)
+
+# 前回件数に対して50%未満になったら異常扱い
 MIN_COUNT_RATIO = 0.5
 
 TIMEOUT = 30
@@ -42,209 +53,14 @@ DISCORD_WEBHOOK = os.environ.get(
 
 
 # ============================================================
-# HTTP
+# Utility
 # ============================================================
 
-def fetch_page(page):
-    print(f"Fetching page={page}")
+def now_iso():
+    return datetime.now(
+        timezone.utc
+    ).isoformat()
 
-    response = requests.get(
-        BASE_URL,
-        params={
-            "limit": 250,
-            "page": page,
-        },
-        timeout=TIMEOUT,
-        headers={
-            "User-Agent": (
-                "Mozilla/5.0 "
-                "(compatible; FINDME-Store-Monitor/1.0)"
-            ),
-            "Accept": "application/json",
-        },
-    )
-
-    response.raise_for_status()
-
-    if not response.content:
-        raise RuntimeError(
-            f"page={page}: empty HTTP response"
-        )
-
-    try:
-        data = response.json()
-    except ValueError as e:
-        raise RuntimeError(
-            f"page={page}: invalid JSON response: {e}"
-        )
-
-    if not isinstance(data, dict):
-        raise RuntimeError(
-            f"page={page}: response is not an object"
-        )
-
-    products = data.get("products")
-
-    if not isinstance(products, list):
-        raise RuntimeError(
-            f"page={page}: products is not a list"
-        )
-
-    if len(products) == 0:
-        raise RuntimeError(
-            f"page={page}: empty products response"
-        )
-
-    print(
-        f"page={page}: "
-        f"{len(products)} products"
-    )
-
-    return products
-
-
-# ============================================================
-# Normalize
-# ============================================================
-
-def normalize_product(product):
-    if not isinstance(product, dict):
-        return None
-
-    handle = product.get("handle")
-
-    if not handle:
-        return None
-
-    variants = product.get("variants") or []
-
-    normalized_variants = []
-
-    for variant in variants:
-        if not isinstance(variant, dict):
-            continue
-
-        normalized_variants.append(
-            {
-                "id": variant.get("id"),
-                "title": variant.get("title"),
-                "price": variant.get("price"),
-                "available": variant.get("available"),
-            }
-        )
-
-    images = []
-
-    for image in product.get("images") or []:
-        if not isinstance(image, dict):
-            continue
-
-        src = image.get("src")
-
-        if src:
-            images.append(src)
-
-    tags = product.get("tags") or []
-
-    if not isinstance(tags, list):
-        tags = []
-
-    tags = [
-        str(tag)
-        for tag in tags
-    ]
-
-    return {
-        "id": product.get("id"),
-        "handle": handle,
-        "title": product.get("title"),
-        "vendor": product.get("vendor"),
-        "product_type": product.get("product_type"),
-        "tags": sorted(tags),
-        "url": (
-            f"{STORE_BASE}/products/{handle}"
-        ),
-        "images": images,
-        "variants": normalized_variants,
-    }
-
-
-def build_products(raw_products):
-    products = {}
-
-    for raw in raw_products:
-        normalized = normalize_product(raw)
-
-        if normalized is None:
-            continue
-
-        handle = normalized["handle"]
-
-        # handleをキーとして重複排除
-        products[handle] = normalized
-
-    return dict(
-        sorted(products.items())
-    )
-
-
-# ============================================================
-# Previous data
-# ============================================================
-
-def load_previous():
-    if not JSON_PATH.exists():
-        print(
-            "No previous JSON. "
-            "Treating as first run."
-        )
-        return {}
-
-    # 空ファイル
-    if JSON_PATH.stat().st_size == 0:
-        print(
-            "Previous JSON is empty. "
-            "Treating as first run."
-        )
-        return {}
-
-    try:
-        with JSON_PATH.open(
-            "r",
-            encoding="utf-8",
-        ) as f:
-            content = f.read().strip()
-
-        if not content:
-            print(
-                "Previous JSON contains no data. "
-                "Treating as first run."
-            )
-            return {}
-
-        data = json.loads(content)
-
-        if not isinstance(data, dict):
-            raise RuntimeError(
-                "previous JSON is not an object"
-            )
-
-        return data
-
-    except json.JSONDecodeError as e:
-        raise RuntimeError(
-            f"previous JSON is invalid JSON: {e}"
-        )
-
-    except Exception as e:
-        raise RuntimeError(
-            f"failed to read previous JSON: {e}"
-        )
-
-
-# ============================================================
-# Save JSON
-# ============================================================
 
 def atomic_write_json(path, data):
     path.parent.mkdir(
@@ -267,142 +83,670 @@ def atomic_write_json(path, data):
             indent=2,
             sort_keys=True,
         )
-
         f.write("\n")
 
     temp_path.replace(path)
 
 
-def save_json(products):
-    atomic_write_json(
-        JSON_PATH,
-        products,
+def load_json(path, default):
+    if not path.exists():
+        return default
+
+    if path.stat().st_size == 0:
+        print(
+            f"{path} is empty. "
+            "Using default value."
+        )
+        return default
+
+    try:
+        with path.open(
+            "r",
+            encoding="utf-8",
+        ) as f:
+            content = f.read().strip()
+
+        if not content:
+            return default
+
+        return json.loads(content)
+
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"Invalid JSON: {path}: {e}"
+        )
+
+
+# ============================================================
+# Shopify API
+# ============================================================
+
+def fetch_page(page):
+    print(
+        f"Fetching page={page}"
     )
 
-
-def save_pages_json(products):
-    atomic_write_json(
-        PAGES_JSON_PATH,
-        {
-            "updated_at": datetime.now(
-                timezone.utc
-            ).isoformat(),
-            "product_count": len(products),
-            "products": products,
+    response = requests.get(
+        BASE_URL,
+        params={
+            "limit": 250,
+            "page": page,
+        },
+        timeout=TIMEOUT,
+        headers={
+            "User-Agent": (
+                "Mozilla/5.0 "
+                "(compatible; "
+                "FINDME-Store-Monitor/1.0)"
+            ),
+            "Accept": "application/json",
         },
     )
+
+    response.raise_for_status()
+
+    if not response.content:
+        raise RuntimeError(
+            f"page={page}: empty response"
+        )
+
+    try:
+        data = response.json()
+
+    except ValueError as e:
+        raise RuntimeError(
+            f"page={page}: invalid JSON: {e}"
+        )
+
+    if not isinstance(data, dict):
+        raise RuntimeError(
+            f"page={page}: "
+            "response is not an object"
+        )
+
+    products = data.get(
+        "products"
+    )
+
+    if not isinstance(products, list):
+        raise RuntimeError(
+            f"page={page}: "
+            "products is not a list"
+        )
+
+    if not products:
+        raise RuntimeError(
+            f"page={page}: "
+            "empty products list"
+        )
+
+    print(
+        f"page={page}: "
+        f"{len(products)} products"
+    )
+
+    return products
+
+
+# ============================================================
+# Product normalization
+# ============================================================
+
+def normalize_product(product):
+    if not isinstance(
+        product,
+        dict,
+    ):
+        return None
+
+    handle = product.get(
+        "handle"
+    )
+
+    if not handle:
+        return None
+
+    variants = []
+
+    for variant in (
+        product.get("variants")
+        or []
+    ):
+        if not isinstance(
+            variant,
+            dict,
+        ):
+            continue
+
+        variants.append(
+            {
+                "id": variant.get(
+                    "id"
+                ),
+                "title": variant.get(
+                    "title"
+                ),
+                "price": variant.get(
+                    "price"
+                ),
+                "available": variant.get(
+                    "available"
+                ),
+            }
+        )
+
+    images = []
+
+    for image in (
+        product.get("images")
+        or []
+    ):
+        if not isinstance(
+            image,
+            dict,
+        ):
+            continue
+
+        src = image.get(
+            "src"
+        )
+
+        if src:
+            images.append(src)
+
+    tags = product.get(
+        "tags"
+    ) or []
+
+    if not isinstance(
+        tags,
+        list,
+    ):
+        tags = []
+
+    tags = sorted(
+        str(tag)
+        for tag in tags
+    )
+
+    return {
+        "id": product.get(
+            "id"
+        ),
+        "handle": handle,
+        "title": product.get(
+            "title"
+        ),
+        "vendor": product.get(
+            "vendor"
+        ),
+        "product_type": product.get(
+            "product_type"
+        ),
+        "tags": tags,
+        "url": (
+            f"{STORE_BASE}"
+            f"/products/{handle}"
+        ),
+        "images": images,
+        "variants": variants,
+    }
+
+
+def build_products(raw_products):
+    products = {}
+
+    for raw in raw_products:
+
+        product = normalize_product(
+            raw
+        )
+
+        if product is None:
+            continue
+
+        products[
+            product["handle"]
+        ] = product
+
+    return dict(
+        sorted(
+            products.items()
+        )
+    )
+
+
+# ============================================================
+# Product state
+# ============================================================
+
+def get_price(product):
+    prices = []
+
+    for variant in (
+        product.get("variants")
+        or []
+    ):
+        try:
+            value = float(
+                variant.get("price")
+            )
+
+            prices.append(value)
+
+        except (
+            TypeError,
+            ValueError,
+        ):
+            pass
+
+    if not prices:
+        return None
+
+    return min(prices)
+
+
+def get_price_text(product):
+    value = get_price(
+        product
+    )
+
+    if value is None:
+        return ""
+
+    if value.is_integer():
+        return str(
+            int(value)
+        )
+
+    return str(value)
+
+
+def is_available(product):
+    return any(
+        variant.get(
+            "available"
+        ) is True
+        for variant in (
+            product.get(
+                "variants"
+            )
+            or []
+        )
+    )
+
+
+def get_state(product):
+    return {
+        "price": get_price_text(
+            product
+        ),
+        "available": is_available(
+            product
+        ),
+        "tags": list(
+            product.get(
+                "tags"
+            )
+            or []
+        ),
+        "images": list(
+            product.get(
+                "images"
+            )
+            or []
+        ),
+    }
+
+
+# ============================================================
+# History
+#
+# 初回状態 first
+# 最終状態 last
+# ============================================================
+
+def create_history_record(
+    product,
+    timestamp,
+):
+    return {
+        "handle": product.get(
+            "handle"
+        ),
+        "title": product.get(
+            "title"
+        ),
+        "url": product.get(
+            "url"
+        ),
+
+        "first_seen": timestamp,
+        "last_seen": timestamp,
+
+        "visible": True,
+
+        "first": get_state(
+            product
+        ),
+
+        "last": get_state(
+            product
+        ),
+    }
+
+
+def update_history_record(
+    record,
+    product,
+    timestamp,
+):
+    record["title"] = product.get(
+        "title"
+    )
+
+    record["url"] = product.get(
+        "url"
+    )
+
+    record["last_seen"] = timestamp
+
+    record["visible"] = True
+
+    record["last"] = get_state(
+        product
+    )
+
+    return record
+
+
+def mark_hidden(
+    record,
+):
+    record["visible"] = False
+
+    return record
+
+
+# ============================================================
+# Difference
+# ============================================================
+
+def compare_products(
+    previous,
+    current,
+):
+    previous_keys = set(
+        previous.keys()
+    )
+
+    current_keys = set(
+        current.keys()
+    )
+
+    added = sorted(
+        current_keys
+        - previous_keys
+    )
+
+    removed = sorted(
+        previous_keys
+        - current_keys
+    )
+
+    stock_changed = []
+    price_changed = []
+
+    for handle in sorted(
+        previous_keys
+        & current_keys
+    ):
+
+        old = get_state(
+            previous[handle]
+        )
+
+        new = get_state(
+            current[handle]
+        )
+
+        if (
+            old["available"]
+            != new["available"]
+        ):
+            stock_changed.append(
+                handle
+            )
+
+        if (
+            old["price"]
+            != new["price"]
+        ):
+            price_changed.append(
+                handle
+            )
+
+    return {
+        "added": added,
+        "removed": removed,
+        "stock_changed":
+            stock_changed,
+        "price_changed":
+            price_changed,
+    }
 
 
 # ============================================================
 # CSV
 # ============================================================
 
-def variant_summary(product):
-    variants = product.get("variants") or []
-
-    if not variants:
-        return {
-            "price": "",
-            "available": False,
-        }
-
-    prices = []
-    available = False
-
-    for variant in variants:
-        if not isinstance(variant, dict):
-            continue
-
-        value = variant.get("price")
-
-        if value is not None:
-            prices.append(
-                str(value)
-            )
-
-        if variant.get("available") is True:
-            available = True
-
-    unique_prices = sorted(
-        set(prices)
-    )
-
-    if len(unique_prices) == 1:
-        price = unique_prices[0]
-    elif unique_prices:
-        price = " / ".join(
-            unique_prices
-        )
-    else:
-        price = ""
-
-    return {
-        "price": price,
-        "available": available,
-    }
-
-
-def product_row(product):
-    summary = variant_summary(
-        product
-    )
-
-    images = product.get("images") or []
-
-    return {
-        "handle": product.get(
-            "handle",
-            "",
-        ),
-        "title": product.get(
-            "title",
-            "",
-        ),
-        "price": summary["price"],
-        "available": summary[
-            "available"
-        ],
-        "tags": ", ".join(
-            product.get("tags") or []
-        ),
-        "url": product.get(
-            "url",
-            "",
-        ),
-        "image": (
-            images[0]
-            if images
-            else ""
-        ),
-    }
-
-
-def save_csv(products):
+def save_products_csv(
+    products
+):
     DATA_DIR.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    fieldnames = [
-        "handle",
-        "title",
-        "price",
-        "available",
-        "tags",
-        "url",
-        "image",
-    ]
+    rows = []
 
-    rows = [
-        product_row(product)
-        for product in products.values()
-    ]
+    for product in (
+        products.values()
+    ):
+        rows.append(
+            {
+                "handle":
+                    product.get(
+                        "handle",
+                        "",
+                    ),
 
-    with CSV_PATH.open(
+                "title":
+                    product.get(
+                        "title",
+                        "",
+                    ),
+
+                "price":
+                    get_price_text(
+                        product
+                    ),
+
+                "available":
+                    is_available(
+                        product
+                    ),
+
+                "tags":
+                    ", ".join(
+                        product.get(
+                            "tags"
+                        )
+                        or []
+                    ),
+
+                "url":
+                    product.get(
+                        "url",
+                        "",
+                    ),
+
+                "image":
+                    (
+                        product.get(
+                            "images"
+                        )
+                        or [""]
+                    )[0],
+            }
+        )
+
+    with PRODUCTS_CSV.open(
         "w",
         encoding="utf-8-sig",
         newline="",
     ) as f:
+
+        fieldnames = [
+            "handle",
+            "title",
+            "price",
+            "available",
+            "tags",
+            "url",
+            "image",
+        ]
+
+        writer = csv.DictWriter(
+            f,
+            fieldnames=fieldnames,
+        )
+
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def save_history_csv(
+    history
+):
+    DATA_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    rows = []
+
+    for record in (
+        history.values()
+    ):
+        first = record.get(
+            "first"
+        ) or {}
+
+        last = record.get(
+            "last"
+        ) or {}
+
+        rows.append(
+            {
+                "handle":
+                    record.get(
+                        "handle",
+                        "",
+                    ),
+
+                "title":
+                    record.get(
+                        "title",
+                        "",
+                    ),
+
+                "visible":
+                    record.get(
+                        "visible",
+                        False,
+                    ),
+
+                "first_seen":
+                    record.get(
+                        "first_seen",
+                        "",
+                    ),
+
+                "last_seen":
+                    record.get(
+                        "last_seen",
+                        "",
+                    ),
+
+                "first_price":
+                    first.get(
+                        "price",
+                        "",
+                    ),
+
+                "last_price":
+                    last.get(
+                        "price",
+                        "",
+                    ),
+
+                "first_available":
+                    first.get(
+                        "available",
+                        False,
+                    ),
+
+                "last_available":
+                    last.get(
+                        "available",
+                        False,
+                    ),
+
+                "first_tags":
+                    ", ".join(
+                        first.get(
+                            "tags"
+                        )
+                        or []
+                    ),
+
+                "last_tags":
+                    ", ".join(
+                        last.get(
+                            "tags"
+                        )
+                        or []
+                    ),
+
+                "url":
+                    record.get(
+                        "url",
+                        "",
+                    ),
+            }
+        )
+
+    with HISTORY_CSV.open(
+        "w",
+        encoding="utf-8-sig",
+        newline="",
+    ) as f:
+
+        fieldnames = [
+            "handle",
+            "title",
+            "visible",
+            "first_seen",
+            "last_seen",
+            "first_price",
+            "last_price",
+            "first_available",
+            "last_available",
+            "first_tags",
+            "last_tags",
+            "url",
+        ]
 
         writer = csv.DictWriter(
             f,
@@ -414,130 +758,23 @@ def save_csv(products):
 
 
 # ============================================================
-# Comparison
-# ============================================================
-
-def compare(previous, current):
-    previous_keys = set(
-        previous.keys()
-    )
-
-    current_keys = set(
-        current.keys()
-    )
-
-    added = sorted(
-        current_keys - previous_keys
-    )
-
-    removed = sorted(
-        previous_keys - current_keys
-    )
-
-    stock_changed = []
-    price_changed = []
-    changed = []
-
-    for handle in sorted(
-        previous_keys & current_keys
-    ):
-        old = previous[handle]
-        new = current[handle]
-
-        old_summary = variant_summary(
-            old
-        )
-
-        new_summary = variant_summary(
-            new
-        )
-
-        if (
-            old_summary["available"]
-            != new_summary["available"]
-        ):
-            stock_changed.append(
-                handle
-            )
-
-        if (
-            old_summary["price"]
-            != new_summary["price"]
-        ):
-            price_changed.append(
-                handle
-            )
-
-        if old != new:
-            changed.append(
-                handle
-            )
-
-    return {
-        "added": added,
-        "removed": removed,
-        "stock_changed": stock_changed,
-        "price_changed": price_changed,
-        "changed": changed,
-    }
-
-
-# ============================================================
-# Display
-# ============================================================
-
-def status(product):
-    if variant_summary(
-        product
-    )["available"]:
-        return "販売中"
-
-    return "Sold out"
-
-
-def price(product):
-    return variant_summary(
-        product
-    )["price"]
-
-
-def product_line(product):
-    price_text = price(product)
-
-    if price_text:
-        price_text += "円"
-    else:
-        price_text = "価格不明"
-
-    return (
-        f"・{product.get('title', '(no title)')} "
-        f"| {price_text} "
-        f"| {status(product)}"
-    )
-
-
-# ============================================================
 # Discord
 # ============================================================
 
-def send_discord(content):
+def send_discord(
+    content
+):
     if not DISCORD_WEBHOOK:
         print(
-            "DISCORD_WEBHOOK is not configured."
+            "DISCORD_WEBHOOK "
+            "is not configured."
         )
         return
-
-    # Discord content上限を考慮
-    if len(content) > 1900:
-        content = (
-            content[:1850]
-            + "\n\n…以下省略"
-        )
 
     response = requests.post(
         DISCORD_WEBHOOK,
         json={
-            "content": content,
+            "content": content
         },
         timeout=30,
     )
@@ -545,9 +782,11 @@ def send_discord(content):
     response.raise_for_status()
 
 
-def send_error(message):
+def send_error(
+    message
+):
     print(
-        f"ERROR: {message}",
+        message,
         file=sys.stderr,
     )
 
@@ -557,14 +796,44 @@ def send_error(message):
     try:
         send_discord(
             "🚨 **FINDME STORE監視エラー**\n\n"
-            f"{message}"
+            + message
         )
+
     except Exception as e:
         print(
-            "Discord error notification "
-            f"failed: {e}",
+            "Failed to send "
+            f"Discord error: {e}",
             file=sys.stderr,
         )
+
+
+def product_status(
+    product
+):
+    return (
+        "販売中"
+        if is_available(product)
+        else "Sold out"
+    )
+
+
+def product_line(
+    product
+):
+    price = get_price_text(
+        product
+    )
+
+    if price:
+        price += "円"
+    else:
+        price = "価格不明"
+
+    return (
+        f"・{product.get('title', '(no title)')}"
+        f" | {price}"
+        f" | {product_status(product)}"
+    )
 
 
 def build_notification(
@@ -572,106 +841,192 @@ def build_notification(
     current,
     diff,
 ):
-    messages = []
+    sections = []
 
-    added = diff["added"]
-    removed = diff["removed"]
-    stock_changed = diff[
-        "stock_changed"
-    ]
-    price_changed = diff[
-        "price_changed"
-    ]
+    # --------------------------------------------------------
+    # 追加
+    # --------------------------------------------------------
 
-    # 新商品
-    if added:
-        messages.append(
+    if diff["added"]:
+
+        lines = [
             "🆕 **新商品**"
-        )
+        ]
 
-        for handle in added:
-            product = current[handle]
+        for handle in diff[
+            "added"
+        ]:
 
-            messages.append(
-                product_line(product)
+            product = current[
+                handle
+            ]
+
+            lines.append(
+                product_line(
+                    product
+                )
             )
 
-            messages.append(
-                f"  {product.get('url', '')}"
+            lines.append(
+                product.get(
+                    "url",
+                    "",
+                )
             )
 
-    # 削除
-    if removed:
-        messages.append(
-            "\n🗑️ **商品削除**"
+        sections.append(
+            "\n".join(lines)
         )
 
-        for handle in removed:
-            product = previous[handle]
+    # --------------------------------------------------------
+    # 削除 / 非表示
+    # --------------------------------------------------------
 
-            messages.append(
+    if diff["removed"]:
+
+        lines = [
+            "🗑️ **非表示になった商品**"
+        ]
+
+        for handle in diff[
+            "removed"
+        ]:
+
+            product = previous[
+                handle
+            ]
+
+            lines.append(
                 f"・{product.get('title', handle)}"
             )
 
-            messages.append(
-                f"  {product.get('url', '')}"
+            lines.append(
+                product.get(
+                    "url",
+                    "",
+                )
             )
 
-    # 在庫変更
-    if stock_changed:
-        messages.append(
-            "\n📦 **在庫変更**"
+        sections.append(
+            "\n".join(lines)
         )
 
-        for handle in stock_changed:
-            old = previous[handle]
-            new = current[handle]
+    # --------------------------------------------------------
+    # 在庫
+    # --------------------------------------------------------
 
-            messages.append(
+    if diff[
+        "stock_changed"
+    ]:
+
+        lines = [
+            "📦 **在庫変更**"
+        ]
+
+        for handle in diff[
+            "stock_changed"
+        ]:
+
+            old = previous[
+                handle
+            ]
+
+            new = current[
+                handle
+            ]
+
+            old_status = (
+                "販売中"
+                if is_available(old)
+                else "Sold out"
+            )
+
+            new_status = (
+                "販売中"
+                if is_available(new)
+                else "Sold out"
+            )
+
+            lines.append(
                 f"・{new.get('title', handle)}"
             )
 
-            messages.append(
-                f"  {status(old)} → "
-                f"{status(new)}"
+            lines.append(
+                f"  {old_status} → {new_status}"
             )
 
-            messages.append(
-                f"  {new.get('url', '')}"
+            lines.append(
+                new.get(
+                    "url",
+                    "",
+                )
             )
 
-    # 価格変更
-    if price_changed:
-        messages.append(
-            "\n💰 **価格変更**"
+        sections.append(
+            "\n".join(lines)
         )
 
-        for handle in price_changed:
-            old = previous[handle]
-            new = current[handle]
+    # --------------------------------------------------------
+    # 価格
+    # --------------------------------------------------------
 
-            messages.append(
+    if diff[
+        "price_changed"
+    ]:
+
+        lines = [
+            "💰 **価格変更**"
+        ]
+
+        for handle in diff[
+            "price_changed"
+        ]:
+
+            old = previous[
+                handle
+            ]
+
+            new = current[
+                handle
+            ]
+
+            old_price = (
+                get_price_text(old)
+                or "不明"
+            )
+
+            new_price = (
+                get_price_text(new)
+                or "不明"
+            )
+
+            lines.append(
                 f"・{new.get('title', handle)}"
             )
 
-            messages.append(
-                f"  {price(old) or '不明'} → "
-                f"{price(new) or '不明'}"
+            lines.append(
+                f"  {old_price}円 → "
+                f"{new_price}円"
             )
 
-            messages.append(
-                f"  {new.get('url', '')}"
+            lines.append(
+                new.get(
+                    "url",
+                    "",
+                )
             )
 
-    if not messages:
+        sections.append(
+            "\n".join(lines)
+        )
+
+    if not sections:
         return None
 
-    messages.insert(
-        0,
-        "🛒 **FINDME STORE / ヰ世界情緒**",
+    return (
+        "🛒 **FINDME STORE / ヰ世界情緒**\n\n"
+        + "\n\n".join(sections)
     )
-
-    return "\n".join(messages)
 
 
 # ============================================================
@@ -679,59 +1034,71 @@ def build_notification(
 # ============================================================
 
 def main():
+
+    timestamp = now_iso()
+
     try:
-        DATA_DIR.mkdir(
-            parents=True,
-            exist_ok=True,
-        )
 
         # ----------------------------------------------------
-        # Fetch all pages
+        # API取得
         # ----------------------------------------------------
 
         raw_products = []
 
         for page in PAGES:
-            page_products = fetch_page(page)
 
-            if len(page_products) == 0:
-                raise RuntimeError(
-                    f"page={page}: "
-                    "empty products response"
-                )
+            page_products = fetch_page(
+                page
+            )
 
             raw_products.extend(
                 page_products
             )
 
         # ----------------------------------------------------
-        # Normalize
+        # 正規化
         # ----------------------------------------------------
 
         current = build_products(
             raw_products
         )
 
-        current_count = len(current)
+        current_count = len(
+            current
+        )
 
         print(
-            f"Total unique products: "
+            f"Current products: "
             f"{current_count}"
         )
 
         if current_count == 0:
             raise RuntimeError(
-                "normalized product count "
-                "is zero"
+                "Current product count "
+                "is zero."
             )
 
         # ----------------------------------------------------
-        # Load previous
+        # 前回データ
         # ----------------------------------------------------
 
-        previous = load_previous()
+        previous = load_json(
+            PRODUCTS_JSON,
+            {},
+        )
 
-        previous_count = len(previous)
+        if not isinstance(
+            previous,
+            dict,
+        ):
+            raise RuntimeError(
+                "products.json "
+                "must be an object."
+            )
+
+        previous_count = len(
+            previous
+        )
 
         print(
             f"Previous products: "
@@ -739,17 +1106,74 @@ def main():
         )
 
         # ----------------------------------------------------
-        # First run
+        # 初回
         # ----------------------------------------------------
 
         if previous_count == 0:
-            print(
-                "Creating initial snapshot."
+
+            history = load_json(
+                HISTORY_JSON,
+                {},
             )
 
-            save_json(current)
-            save_csv(current)
-            save_pages_json(current)
+            if not isinstance(
+                history,
+                dict,
+            ):
+                history = {}
+
+            for handle, product in (
+                current.items()
+            ):
+
+                history[
+                    handle
+                ] = create_history_record(
+                    product,
+                    timestamp,
+                )
+
+            atomic_write_json(
+                PRODUCTS_JSON,
+                current,
+            )
+
+            atomic_write_json(
+                HISTORY_JSON,
+                history,
+            )
+
+            save_products_csv(
+                current
+            )
+
+            save_history_csv(
+                history
+            )
+
+            atomic_write_json(
+                PAGES_PRODUCTS_JSON,
+                {
+                    "updated_at":
+                        timestamp,
+                    "product_count":
+                        current_count,
+                    "products":
+                        current,
+                },
+            )
+
+            atomic_write_json(
+                PAGES_HISTORY_JSON,
+                {
+                    "updated_at":
+                        timestamp,
+                    "history_count":
+                        len(history),
+                    "history":
+                        history,
+                },
+            )
 
             send_discord(
                 "📌 **FINDME STORE監視を開始しました**\n\n"
@@ -761,7 +1185,7 @@ def main():
             return
 
         # ----------------------------------------------------
-        # Count safety check
+        # 件数激減チェック
         # ----------------------------------------------------
 
         minimum_count = max(
@@ -772,21 +1196,24 @@ def main():
             ),
         )
 
-        if current_count < minimum_count:
+        if (
+            current_count
+            < minimum_count
+        ):
+
             raise RuntimeError(
                 "商品数が異常に減少しました。\n"
                 f"前回: {previous_count}\n"
                 f"今回: {current_count}\n"
                 f"許容最低値: {minimum_count}\n"
-                "安全のため前回データを"
-                "更新しません。"
+                "安全のためデータを更新しません。"
             )
 
         # ----------------------------------------------------
-        # Compare
+        # 差分
         # ----------------------------------------------------
 
-        diff = compare(
+        diff = compare_products(
             previous,
             current,
         )
@@ -812,33 +1239,136 @@ def main():
         )
 
         # ----------------------------------------------------
+        # History
+        # ----------------------------------------------------
+
+        history = load_json(
+            HISTORY_JSON,
+            {},
+        )
+
+        if not isinstance(
+            history,
+            dict,
+        ):
+            raise RuntimeError(
+                "history.json "
+                "must be an object."
+            )
+
+        # 現在存在する商品
+        for handle, product in (
+            current.items()
+        ):
+
+            if handle in history:
+
+                history[
+                    handle
+                ] = update_history_record(
+                    history[handle],
+                    product,
+                    timestamp,
+                )
+
+            else:
+
+                history[
+                    handle
+                ] = create_history_record(
+                    product,
+                    timestamp,
+                )
+
+        # 今回消えた商品
+        for handle in diff[
+            "removed"
+        ]:
+
+            if handle in history:
+
+                history[
+                    handle
+                ] = mark_hidden(
+                    history[handle]
+                )
+
+        # ----------------------------------------------------
         # Save
         # ----------------------------------------------------
 
-        save_json(current)
-        save_csv(current)
-        save_pages_json(current)
+        atomic_write_json(
+            PRODUCTS_JSON,
+            current,
+        )
+
+        atomic_write_json(
+            HISTORY_JSON,
+            history,
+        )
+
+        save_products_csv(
+            current
+        )
+
+        save_history_csv(
+            history
+        )
+
+        # ----------------------------------------------------
+        # GitHub Pages
+        # ----------------------------------------------------
+
+        atomic_write_json(
+            PAGES_PRODUCTS_JSON,
+            {
+                "updated_at":
+                    timestamp,
+                "product_count":
+                    current_count,
+                "products":
+                    current,
+            },
+        )
+
+        atomic_write_json(
+            PAGES_HISTORY_JSON,
+            {
+                "updated_at":
+                    timestamp,
+                "history_count":
+                    len(history),
+                "history":
+                    history,
+            },
+        )
 
         # ----------------------------------------------------
         # Discord
         # ----------------------------------------------------
 
-        notification = build_notification(
-            previous,
-            current,
-            diff,
+        notification = (
+            build_notification(
+                previous,
+                current,
+                diff,
+            )
         )
 
         if notification:
+
             send_discord(
                 notification
             )
+
         else:
+
             print(
                 "No changes."
             )
 
     except Exception as e:
+
         send_error(
             str(e)
         )

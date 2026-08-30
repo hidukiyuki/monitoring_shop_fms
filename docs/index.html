@@ -18,38 +18,47 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
         background: #f5f5f5;
+
         color: #222;
       }
 
       header {
         background: #fff;
+
         border-bottom: 1px solid #ddd;
+
         padding: 24px;
       }
 
       .header-inner {
         max-width: 1400px;
+
         margin: auto;
       }
 
       h1 {
-        margin: 0 0 10px;
+        margin: 0 0 8px;
+
         font-size: 24px;
       }
 
       .info {
         color: #777;
+
         font-size: 14px;
       }
 
       .controls {
         max-width: 1400px;
+
         margin: 20px auto;
+
         padding: 0 20px;
       }
 
       .search {
         width: 100%;
+
         padding: 14px 16px;
 
         border: 1px solid #ccc;
@@ -57,21 +66,55 @@
         border-radius: 8px;
 
         font-size: 16px;
+
         background: #fff;
+      }
+
+      .tabs {
+        display: flex;
+
+        gap: 8px;
+
+        margin-top: 15px;
+
+        flex-wrap: wrap;
+      }
+
+      .tab {
+        padding: 10px 16px;
+
+        border: 1px solid #ccc;
+
+        border-radius: 6px;
+
+        background: #fff;
+
+        cursor: pointer;
+
+        font-size: 14px;
+      }
+
+      .tab.active {
+        background: #222;
+
+        color: #fff;
+
+        border-color: #222;
       }
 
       .filter-row {
         display: flex;
+
         gap: 8px;
 
         flex-wrap: wrap;
 
-        margin-top: 12px;
+        margin-top: 10px;
       }
 
       button,
       select {
-        padding: 9px 13px;
+        padding: 8px 12px;
 
         border: 1px solid #ccc;
 
@@ -82,22 +125,17 @@
         cursor: pointer;
       }
 
-      button:hover {
-        background: #f0f0f0;
-      }
-
       button.active {
         background: #222;
-        color: #fff;
-        border-color: #222;
-      }
 
-      select {
-        font-size: 14px;
+        color: #fff;
+
+        border-color: #222;
       }
 
       main {
         max-width: 1400px;
+
         margin: auto;
 
         padding: 0 20px 40px;
@@ -105,6 +143,7 @@
 
       .count {
         color: #777;
+
         margin-bottom: 10px;
       }
 
@@ -140,6 +179,7 @@
 
       .product-image {
         width: 110px;
+
         height: 110px;
 
         object-fit: contain;
@@ -151,6 +191,7 @@
 
       .product-title {
         font-size: 16px;
+
         font-weight: 600;
 
         margin-bottom: 5px;
@@ -158,6 +199,7 @@
 
       .product-title a {
         color: inherit;
+
         text-decoration: none;
       }
 
@@ -167,6 +209,7 @@
 
       .handle {
         font-size: 12px;
+
         color: #999;
 
         margin-bottom: 8px;
@@ -181,8 +224,6 @@
       }
 
       .tag {
-        display: inline-block;
-
         padding: 3px 7px;
 
         border-radius: 4px;
@@ -195,7 +236,6 @@
       }
 
       .price {
-        font-size: 16px;
         font-weight: 600;
       }
 
@@ -213,22 +253,33 @@
 
       .available {
         background: #dff5df;
+
         color: #176b17;
       }
 
       .soldout {
         background: #eee;
+
         color: #777;
       }
 
-      .no-results {
-        padding: 60px 20px;
+      .hidden {
+        background: #ffe0e0;
 
-        text-align: center;
-
-        color: #888;
+        color: #a00000;
       }
 
+      .history-info {
+        margin-top: 8px;
+
+        color: #777;
+
+        font-size: 12px;
+
+        line-height: 1.7;
+      }
+
+      .no-results,
       .loading {
         padding: 60px 20px;
 
@@ -245,6 +296,7 @@
         .controls,
         main {
           padding-left: 10px;
+
           padding-right: 10px;
         }
 
@@ -256,13 +308,11 @@
 
         .product-image {
           width: 75px;
+
           height: 75px;
         }
 
-        .price {
-          grid-column: 2;
-        }
-
+        .price,
         .status {
           grid-column: 2;
         }
@@ -279,7 +329,7 @@
           最終取得:
           <span id="updated"> 読み込み中... </span>
 
-          &nbsp;&nbsp; 商品数:
+          &nbsp;&nbsp; 登録商品:
           <span id="total"> - </span>
         </div>
       </div>
@@ -293,13 +343,25 @@
         placeholder="商品名・handle・タグで検索..."
       />
 
-      <div class="filter-row">
+      <div class="tabs">
+        <button class="tab active" data-mode="current">現在の商品</button>
+
+        <button class="tab" data-mode="hidden">非表示商品</button>
+
+        <button class="tab" data-mode="history">全履歴</button>
+      </div>
+
+      <div id="statusFilters" class="filter-row">
         <button class="status-filter active" data-status="all">すべて</button>
 
         <button class="status-filter" data-status="available">🟢 販売中</button>
 
         <button class="status-filter" data-status="soldout">🔴 Sold out</button>
+      </div>
 
+      <div id="tagFilters" class="filter-row"></div>
+
+      <div class="filter-row">
         <select id="sort">
           <option value="default">デフォルト順</option>
 
@@ -310,36 +372,40 @@
           <option value="title-asc">商品名 A→Z</option>
 
           <option value="title-desc">商品名 Z→A</option>
+
+          <option value="first-seen">初回確認が新しい順</option>
+
+          <option value="last-seen">最終確認が新しい順</option>
         </select>
       </div>
-
-      <div id="tagFilters" class="filter-row"></div>
     </section>
 
     <main>
       <div class="count">
         表示:
         <span id="visibleCount"> - </span>
-        商品
+        件
       </div>
 
       <div id="products" class="products">
-        <div class="loading">商品データを読み込んでいます...</div>
+        <div class="loading">読み込み中...</div>
       </div>
     </main>
 
     <script>
-      let allProducts = [];
+      let products = [];
 
-      let currentStatus = "all";
+      let history = [];
 
-      let currentTag = "all";
+      let mode = "current";
 
-      /*
-============================================================
-HTML escape
-============================================================
-*/
+      let statusFilter = "all";
+
+      let tagFilter = "all";
+
+      /* ============================================================
+   Escape
+============================================================ */
 
       function escapeHtml(value) {
         return String(value ?? "")
@@ -350,49 +416,35 @@ HTML escape
           .replace(/'/g, "&#039;");
       }
 
-      /*
-============================================================
-Load JSON
-============================================================
-*/
+      /* ============================================================
+   Load
+============================================================ */
 
-      async function loadProducts() {
+      async function loadData() {
         try {
-          const response = await fetch("./data/products.json?" + Date.now());
+          const [productsResponse, historyResponse] = await Promise.all([
+            fetch("./data/products.json?" + Date.now()),
 
-          if (!response.ok) {
-            throw new Error("HTTP " + response.status);
+            fetch("./data/history.json?" + Date.now()),
+          ]);
+
+          if (!productsResponse.ok || !historyResponse.ok) {
+            throw new Error("データ取得失敗");
           }
 
-          const data = await response.json();
+          const productData = await productsResponse.json();
 
-          /*
-        新形式
-        {
-            updated_at,
-            product_count,
-            products
-        }
-        */
+          const historyData = await historyResponse.json();
 
-          if (data.products && typeof data.products === "object") {
-            allProducts = Object.values(data.products);
+          products = Object.values(productData.products || {});
 
-            if (data.updated_at) {
-              document.getElementById("updated").textContent = new Date(
-                data.updated_at,
-              ).toLocaleString("ja-JP");
-            }
-          } else if (typeof data === "object") {
-            /*
-        念のため旧形式にも対応
-        */
-            allProducts = Object.values(data);
+          history = Object.values(historyData.history || {});
 
-            document.getElementById("updated").textContent = "不明";
-          }
+          document.getElementById("updated").textContent = new Date(
+            productData.updated_at,
+          ).toLocaleString("ja-JP");
 
-          document.getElementById("total").textContent = allProducts.length;
+          document.getElementById("total").textContent = history.length;
 
           buildTagFilters();
 
@@ -404,7 +456,7 @@ Load JSON
 
                 <div class="no-results">
 
-                    商品データの読み込みに失敗しました。
+                    データの読み込みに失敗しました。
 
                     <br><br>
 
@@ -416,88 +468,34 @@ Load JSON
         }
       }
 
-      /*
-============================================================
-Tags
-============================================================
-*/
-
-      function buildTagFilters() {
-        const tags = new Set();
-
-        allProducts.forEach((product) => {
-          (product.tags || []).forEach((tag) => tags.add(tag));
-        });
-
-        const container = document.getElementById("tagFilters");
-
-        container.innerHTML = "";
-
-        const allButton = document.createElement("button");
-
-        allButton.textContent = "全タグ";
-
-        allButton.classList.add("active");
-
-        allButton.onclick = () => {
-          currentTag = "all";
-
-          document
-            .querySelectorAll("#tagFilters button")
-            .forEach((button) => button.classList.remove("active"));
-
-          allButton.classList.add("active");
-
-          render();
-        };
-
-        container.appendChild(allButton);
-
-        [...tags]
-          .sort((a, b) => a.localeCompare(b, "ja"))
-          .forEach((tag) => {
-            const button = document.createElement("button");
-
-            button.textContent = tag;
-
-            button.onclick = () => {
-              currentTag = tag;
-
-              document
-                .querySelectorAll("#tagFilters button")
-                .forEach((button) => button.classList.remove("active"));
-
-              button.classList.add("active");
-
-              render();
-            };
-
-            container.appendChild(button);
-          });
-      }
-
-      /*
-============================================================
-Availability
-============================================================
-*/
+      /* ============================================================
+   Availability
+============================================================ */
 
       function isAvailable(product) {
+        if (product.last) {
+          return product.last.available === true;
+        }
+
         return (product.variants || []).some(
           (variant) => variant.available === true,
         );
       }
 
-      /*
-============================================================
-Price
-============================================================
-*/
+      /* ============================================================
+   Price
+============================================================ */
 
       function getPrice(product) {
+        if (product.last && product.last.price) {
+          const value = Number(product.last.price);
+
+          return Number.isFinite(value) ? value : null;
+        }
+
         const prices = (product.variants || [])
           .map((variant) => Number(variant.price))
-          .filter((price) => Number.isFinite(price));
+          .filter(Number.isFinite);
 
         if (!prices.length) {
           return null;
@@ -516,68 +514,137 @@ Price
         return price.toLocaleString("ja-JP") + " 円";
       }
 
-      /*
-============================================================
-Render
-============================================================
-*/
+      /* ============================================================
+   Tags
+============================================================ */
 
-      function render() {
+      function getTags(product) {
+        if (product.last && product.last.tags) {
+          return product.last.tags;
+        }
+
+        return product.tags || [];
+      }
+
+      function buildTagFilters() {
+        const tags = new Set();
+
+        history.forEach((product) => {
+          getTags(product).forEach((tag) => tags.add(tag));
+        });
+
+        const container = document.getElementById("tagFilters");
+
+        container.innerHTML = "";
+
+        const allButton = document.createElement("button");
+
+        allButton.textContent = "全タグ";
+
+        allButton.classList.add("active");
+
+        allButton.onclick = () => {
+          tagFilter = "all";
+
+          document
+            .querySelectorAll("#tagFilters button")
+            .forEach((b) => b.classList.remove("active"));
+
+          allButton.classList.add("active");
+
+          render();
+        };
+
+        container.appendChild(allButton);
+
+        [...tags]
+          .sort((a, b) => a.localeCompare(b, "ja"))
+          .forEach((tag) => {
+            const button = document.createElement("button");
+
+            button.textContent = tag;
+
+            button.onclick = () => {
+              tagFilter = tag;
+
+              document
+                .querySelectorAll("#tagFilters button")
+                .forEach((b) => b.classList.remove("active"));
+
+              button.classList.add("active");
+
+              render();
+            };
+
+            container.appendChild(button);
+          });
+      }
+
+      /* ============================================================
+   Filtering
+============================================================ */
+
+      function matchesSearch(product, search) {
+        if (!search) {
+          return true;
+        }
+
+        const text = [product.title, product.handle, ...getTags(product)]
+          .join(" ")
+          .toLowerCase();
+
+        return text.includes(search);
+      }
+
+      function filterProducts() {
         const search = document
           .getElementById("search")
           .value.trim()
           .toLowerCase();
 
-        const sort = document.getElementById("sort").value;
+        let source;
 
-        let products = [...allProducts];
+        if (mode === "current") {
+          source = history.filter((product) => product.visible);
+        } else if (mode === "hidden") {
+          source = history.filter((product) => !product.visible);
+        } else {
+          source = [...history];
+        }
 
-        /*
-    Filter
-    */
-
-        products = products.filter((product) => {
-          const available = isAvailable(product);
-
-          if (currentStatus === "available" && !available) {
+        return source.filter((product) => {
+          if (!matchesSearch(product, search)) {
             return false;
           }
 
-          if (currentStatus === "soldout" && available) {
+          if (tagFilter !== "all" && !getTags(product).includes(tagFilter)) {
             return false;
           }
 
-          if (
-            currentTag !== "all" &&
-            !(product.tags || []).includes(currentTag)
-          ) {
-            return false;
-          }
+          if (mode === "current") {
+            const available = isAvailable(product);
 
-          if (search) {
-            const text = [
-              product.title,
+            if (statusFilter === "available" && !available) {
+              return false;
+            }
 
-              product.handle,
-
-              ...(product.tags || []),
-            ]
-              .join(" ")
-              .toLowerCase();
-
-            if (!text.includes(search)) {
+            if (statusFilter === "soldout" && available) {
               return false;
             }
           }
 
           return true;
         });
+      }
 
-        /*
-    Sort
-    */
+      /* ============================================================
+   Sort
+============================================================ */
 
-        products.sort((a, b) => {
+      function sortProducts(items) {
+        const sort = document.getElementById("sort").value;
+
+        items.sort((a, b) => {
           if (sort === "price-asc") {
             return (getPrice(a) ?? Infinity) - (getPrice(b) ?? Infinity);
           }
@@ -594,172 +661,247 @@ Render
             return (b.title || "").localeCompare(a.title || "", "ja");
           }
 
+          if (sort === "first-seen") {
+            return new Date(b.first_seen) - new Date(a.first_seen);
+          }
+
+          if (sort === "last-seen") {
+            return new Date(b.last_seen) - new Date(a.last_seen);
+          }
+
           return 0;
         });
 
-        /*
-    Count
-    */
+        return items;
+      }
 
-        document.getElementById("visibleCount").textContent = products.length;
+      /* ============================================================
+   Render
+============================================================ */
 
-        /*
-    Empty
-    */
+      function render() {
+        let items = filterProducts();
 
-        if (!products.length) {
-          document.getElementById("products").innerHTML = `
+        items = sortProducts(items);
 
-                <div class="no-results">
+        document.getElementById("visibleCount").textContent = items.length;
 
-                    条件に一致する商品がありません。
+        const container = document.getElementById("products");
 
-                </div>
+        if (!items.length) {
+          container.innerHTML = `
 
-            `;
+            <div class="no-results">
+
+                条件に一致する商品がありません。
+
+            </div>
+
+        `;
 
           return;
         }
 
-        /*
-    Product HTML
-    */
-
-        document.getElementById("products").innerHTML = products
-          .map((product) => {
-            const available = isAvailable(product);
-
-            const image =
-              product.images && product.images.length ? product.images[0] : "";
-
-            const tags = (product.tags || [])
-              .map(
-                (tag) =>
-                  `
-                            <span class="tag">
-                                ${escapeHtml(tag)}
-                            </span>
-                            `,
-              )
-              .join("");
-
-            return `
-
-                <article class="product">
-
-
-                    <div>
-
-                        ${
-                          image
-                            ? `
-
-                            <img
-                                class="product-image"
-                                src="${escapeHtml(image)}"
-                                alt="${escapeHtml(product.title)}"
-                                loading="lazy"
-                            >
-
-                            `
-                            : ""
-                        }
-
-                    </div>
-
-
-                    <div>
-
-
-                        <div class="product-title">
-
-                            <a
-                                href="${escapeHtml(product.url)}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-
-                                ${escapeHtml(product.title)}
-
-                            </a>
-
-                        </div>
-
-
-                        <div class="handle">
-
-                            ${escapeHtml(product.handle)}
-
-                        </div>
-
-
-                        <div class="product-tags">
-
-                            ${tags}
-
-                        </div>
-
-
-                    </div>
-
-
-                    <div class="price">
-
-                        ${formatPrice(product)}
-
-                    </div>
-
-
-                    <div>
-
-                        <span class="
-                            status
-                            ${available ? "available" : "soldout"}
-                        ">
-
-                            ${available ? "🟢 販売中" : "🔴 Sold out"}
-
-                        </span>
-
-                    </div>
-
-
-                </article>
-
-                `;
-          })
+        container.innerHTML = items
+          .map((product) => renderProduct(product))
           .join("");
       }
 
-      /*
-============================================================
- Search
-============================================================
-*/
+      /* ============================================================
+   Product card
+============================================================ */
+
+      function renderProduct(product) {
+        const available = isAvailable(product);
+
+        const tags = getTags(product)
+          .map(
+            (tag) =>
+              `
+                <span class="tag">
+                    ${escapeHtml(tag)}
+                </span>
+                `,
+          )
+          .join("");
+
+        const images = product.last?.images || product.images || [];
+
+        const image = images[0] || "";
+
+        const hidden = !product.visible;
+
+        let statusHtml;
+
+        if (hidden) {
+          statusHtml = `
+
+            <span class="status hidden">
+                ⚫ 非表示
+            </span>
+
+        `;
+        } else if (available) {
+          statusHtml = `
+
+            <span class="status available">
+                🟢 販売中
+            </span>
+
+        `;
+        } else {
+          statusHtml = `
+
+            <span class="status soldout">
+                🔴 Sold out
+            </span>
+
+        `;
+        }
+
+        const historyInfo = `
+
+        <div class="history-info">
+
+            初回:
+            ${formatDate(product.first_seen)}
+
+            <br>
+
+            最終:
+            ${formatDate(product.last_seen)}
+
+        </div>
+
+    `;
+
+        return `
+
+    <article class="product">
+
+
+        <div>
+
+            ${
+              image
+                ? `
+
+                <img
+                    class="product-image"
+                    src="${escapeHtml(image)}"
+                    alt="${escapeHtml(product.title)}"
+                    loading="lazy"
+                >
+
+                `
+                : ""
+            }
+
+        </div>
+
+
+        <div>
+
+            <div class="product-title">
+
+                <a
+                    href="${escapeHtml(product.url)}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+
+                    ${escapeHtml(product.title)}
+
+                </a>
+
+            </div>
+
+
+            <div class="handle">
+
+                ${escapeHtml(product.handle)}
+
+            </div>
+
+
+            <div class="product-tags">
+
+                ${tags}
+
+            </div>
+
+
+            ${mode !== "current" ? historyInfo : ""}
+
+
+        </div>
+
+
+        <div class="price">
+
+            ${hidden ? "最終価格: " : ""}
+
+            ${formatPrice(product)}
+
+        </div>
+
+
+        <div>
+
+            ${statusHtml}
+
+        </div>
+
+
+    </article>
+
+    `;
+      }
+
+      /* ============================================================
+   Date
+============================================================ */
+
+      function formatDate(value) {
+        if (!value) {
+          return "-";
+        }
+
+        return new Date(value).toLocaleString("ja-JP");
+      }
+
+      /* ============================================================
+   Events
+============================================================ */
 
       document.getElementById("search").addEventListener("input", render);
 
-      /*
-============================================================
- Sort
-============================================================
-*/
-
       document.getElementById("sort").addEventListener("change", render);
 
-      /*
-============================================================
- Status filter
-============================================================
-*/
+      document.querySelectorAll(".tab").forEach((button) => {
+        button.addEventListener("click", () => {
+          mode = button.dataset.mode;
+
+          document
+            .querySelectorAll(".tab")
+            .forEach((b) => b.classList.remove("active"));
+
+          button.classList.add("active");
+
+          document.getElementById("statusFilters").style.display =
+            mode === "current" ? "flex" : "none";
+
+          render();
+        });
+      });
 
       document.querySelectorAll(".status-filter").forEach((button) => {
         button.addEventListener("click", () => {
-          currentStatus = button.dataset.status;
+          statusFilter = button.dataset.status;
 
           document
             .querySelectorAll(".status-filter")
-            .forEach((button) => button.classList.remove("active"));
+            .forEach((b) => b.classList.remove("active"));
 
           button.classList.add("active");
 
@@ -767,13 +909,11 @@ Render
         });
       });
 
-      /*
-============================================================
- Start
-============================================================
-*/
+      /* ============================================================
+   Start
+============================================================ */
 
-      loadProducts();
+      loadData();
     </script>
   </body>
 </html>
