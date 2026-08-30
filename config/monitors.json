@@ -1,16 +1,18 @@
 {
   "monitors": [
     {
-      "collection": "isekaijoucho",
       "name": "ヰ世界情緒",
+      "collection": "isekaijoucho",
       "url": "https://findmestore.thinkr.jp/collections/isekaijoucho/products.json",
-      "pages": [1, 2]
+      "pages": [1, 2],
+      "products_path": "./data/isekaijoucho/products.json"
     },
     {
-      "collection": "v-w-p",
       "name": "V.W.P",
+      "collection": "v-w-p",
       "url": "https://findmestore.thinkr.jp/collections/v-w-p/products.json",
-      "pages": [1, 2]
+      "pages": [1, 2],
+      "products_path": "./data/v-w-p/products.json"
     }
   ]
 }
