@@ -380,7 +380,8 @@
         margin-top: 4px;
       }
 
-      .tags {
+      .tags,
+      .categories {
         display: flex;
 
         flex-wrap: wrap;
@@ -390,14 +391,25 @@
         margin-top: 10px;
       }
 
-      .tag {
+      .tag,
+      .category {
         padding: 4px 7px;
-
-        background: #eee;
 
         border-radius: 5px;
 
         font-size: 11px;
+      }
+
+      .tag {
+        background: #eee;
+      }
+
+      .category {
+        background: #e8eefc;
+
+        color: #315aa8;
+
+        font-weight: 600;
       }
 
       /* =====================================================
@@ -462,17 +474,20 @@
         display: grid;
 
         grid-template-columns:
-          80px
-          minmax(180px, 2fr)
-          minmax(120px, 1fr)
-          minmax(150px, 1fr)
+          72px
+          minmax(220px, 2.2fr)
+          minmax(150px, 1.2fr)
+          minmax(130px, 1fr)
+          minmax(110px, auto)
           auto;
 
         align-items: center;
 
-        gap: 15px;
+        gap: 16px;
 
-        padding: 10px 15px;
+        min-height: 96px;
+
+        padding: 10px 14px;
 
         border-radius: 8px;
 
@@ -482,9 +497,9 @@
       }
 
       .products.list-view .product-image {
-        width: 80px;
+        width: 72px;
 
-        height: 80px;
+        height: 72px;
 
         aspect-ratio: 1 / 1;
 
@@ -497,72 +512,223 @@
         display: contents;
       }
 
-      .products.list-view .availability {
-        margin: 0;
+      .products.list-view .product-info {
+        min-width: 0;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 4px;
       }
 
       .products.list-view .product-title {
         margin: 0;
 
+        overflow: hidden;
+
         font-size: 14px;
+
+        font-weight: 600;
+
+        line-height: 1.4;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
       }
 
       .products.list-view .product-price {
         margin: 0;
 
         font-size: 15px;
+
+        white-space: nowrap;
       }
 
       .products.list-view .sku {
         margin: 0;
 
+        overflow: hidden;
+
         font-size: 12px;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
       }
 
-      .products.list-view .date,
-      .products.list-view .tags {
-        display: none;
+      .products.list-view .product-meta {
+        min-width: 0;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 5px;
+      }
+
+      .products.list-view .product-meta .categories,
+      .products.list-view .product-meta .tags {
+        display: flex;
+
+        flex-wrap: nowrap;
+
+        gap: 4px;
+
+        margin: 0;
+
+        overflow: hidden;
+      }
+
+      .products.list-view .product-meta .category,
+      .products.list-view .product-meta .tag {
+        flex: 0 0 auto;
+
+        max-width: 130px;
+
+        overflow: hidden;
+
+        padding: 3px 6px;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+      }
+
+      .products.list-view .product-dates {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 3px;
+
+        min-width: 0;
+      }
+
+      .products.list-view .product-dates .date {
+        margin: 0;
+
+        overflow: hidden;
+
+        font-size: 11px;
+
+        text-overflow: ellipsis;
+
+        white-space: nowrap;
+      }
+
+      .products.list-view .availability {
+        margin: 0;
+
+        white-space: nowrap;
       }
 
       .products.list-view .product-link {
         margin: 0;
 
+        padding: 7px 9px;
+
+        border: 1px solid #0066cc;
+
+        border-radius: 5px;
+
         white-space: nowrap;
+      }
+
+      .products.list-view .product-link:hover {
+        background: #0066cc;
+
+        color: #fff;
+
+        text-decoration: none;
       }
 
       /* =====================================================
        Responsive
        ===================================================== */
 
-      @media (max-width: 900px) {
+      @media (max-width: 1100px) {
         .products.list-view .product {
           grid-template-columns:
-            60px
-            1fr
+            64px
+            minmax(190px, 2fr)
+            minmax(130px, 1fr)
+            minmax(110px, 1fr)
             auto;
         }
 
         .products.list-view .product-image {
+          width: 64px;
+
+          height: 64px;
+        }
+
+        .products.list-view .product-dates {
+          display: none;
+        }
+      }
+
+      @media (max-width: 800px) {
+        .products.list-view .product {
+          grid-template-columns:
+            60px
+            minmax(0, 1fr)
+            auto;
+
+          gap: 10px;
+
+          min-height: 80px;
+        }
+
+        .products.list-view .product-image {
           width: 60px;
+
           height: 60px;
         }
 
-        .products.list-view .product-price {
+        .products.list-view .product-info {
           grid-column: 2;
+
+          grid-row: 1;
         }
 
-        .products.list-view .sku {
+        .products.list-view .product-meta {
           grid-column: 2;
+
+          grid-row: 2;
+
+          flex-direction: row;
+
+          align-items: center;
+        }
+
+        .products.list-view .product-meta .tags {
+          display: none;
+        }
+
+        .products.list-view .product-price {
+          grid-column: 3;
+
+          grid-row: 1;
+
+          text-align: right;
         }
 
         .products.list-view .availability {
           grid-column: 3;
-          grid-row: 1;
+
+          grid-row: 2;
+
+          justify-self: end;
         }
 
         .products.list-view .product-link {
-          grid-column: 3;
-          grid-row: 2;
+          grid-column: 2 / 4;
+
+          grid-row: 3;
+
+          justify-self: start;
         }
       }
 
@@ -589,13 +755,29 @@
 
         .products.list-view .product {
           grid-template-columns:
-            55px
-            1fr;
+            52px
+            minmax(0, 1fr)
+            auto;
+
+          padding: 8px 10px;
         }
 
-        .products.list-view .availability,
+        .products.list-view .product-image {
+          width: 52px;
+
+          height: 52px;
+        }
+
+        .products.list-view .product-title {
+          font-size: 13px;
+        }
+
+        .products.list-view .product-price {
+          font-size: 14px;
+        }
+
         .products.list-view .product-link {
-          grid-column: 2;
+          font-size: 12px;
         }
       }
     </style>
@@ -715,11 +897,12 @@
     </div>
 
     <script>
+
       "use strict";
 
       /* =========================================================
-   Global state
-   ========================================================= */
+         Global state
+         ========================================================= */
 
       let monitors = [];
 
@@ -729,150 +912,294 @@
 
       let viewMode = "card";
 
-      let selectedTags = new Set();
+      let selectedTags =
+        new Set();
 
-      let selectedCategories = new Set();
+      let selectedCategories =
+        new Set();
 
-      let selectedAvailability = new Set();
-
-      /* =========================================================
-   DOM
-   ========================================================= */
-
-      const tabsEl = document.getElementById("tabs");
-
-      const productsEl = document.getElementById("products");
-
-      const loadingEl = document.getElementById("loading");
-
-      const errorEl = document.getElementById("error");
-
-      const statusEl = document.getElementById("status");
-
-      const controlsEl = document.getElementById("controls");
-
-      const searchEl = document.getElementById("search");
-
-      const priceSortEl = document.getElementById("priceSort");
-
-      const availabilityFiltersEl = document.getElementById(
-        "availabilityFilters",
-      );
-
-      const categoryFiltersEl = document.getElementById("categoryFilters");
-
-      const tagFiltersEl = document.getElementById("tagFilters");
-
-      const clearFiltersEl = document.getElementById("clearFilters");
-
-      const cardViewButton = document.getElementById("cardViewButton");
-
-      const listViewButton = document.getElementById("listViewButton");
-
-      const lastUpdatedEl = document.getElementById("lastUpdated");
+      let selectedAvailability =
+        new Set();
 
       /* =========================================================
-   Utility
-   ========================================================= */
+         DOM
+         ========================================================= */
+
+      const tabsEl =
+        document.getElementById(
+          "tabs"
+        );
+
+      const productsEl =
+        document.getElementById(
+          "products"
+        );
+
+      const loadingEl =
+        document.getElementById(
+          "loading"
+        );
+
+      const errorEl =
+        document.getElementById(
+          "error"
+        );
+
+      const statusEl =
+        document.getElementById(
+          "status"
+        );
+
+      const controlsEl =
+        document.getElementById(
+          "controls"
+        );
+
+      const searchEl =
+        document.getElementById(
+          "search"
+        );
+
+      const priceSortEl =
+        document.getElementById(
+          "priceSort"
+        );
+
+      const availabilityFiltersEl =
+        document.getElementById(
+          "availabilityFilters"
+        );
+
+      const categoryFiltersEl =
+        document.getElementById(
+          "categoryFilters"
+        );
+
+      const tagFiltersEl =
+        document.getElementById(
+          "tagFilters"
+        );
+
+      const clearFiltersEl =
+        document.getElementById(
+          "clearFilters"
+        );
+
+      const cardViewButton =
+        document.getElementById(
+          "cardViewButton"
+        );
+
+      const listViewButton =
+        document.getElementById(
+          "listViewButton"
+        );
+
+      const lastUpdatedEl =
+        document.getElementById(
+          "lastUpdated"
+        );
+
+      /* =========================================================
+         Utility
+         ========================================================= */
 
       function showError(message) {
-        errorEl.textContent = message;
 
-        errorEl.style.display = "block";
+        errorEl.textContent =
+          message;
+
+        errorEl.style.display =
+          "block";
+
       }
 
       function clearError() {
-        errorEl.textContent = "";
 
-        errorEl.style.display = "none";
+        errorEl.textContent =
+          "";
+
+        errorEl.style.display =
+          "none";
+
       }
 
       function escapeHtml(value) {
-        if (value === null || value === undefined) {
+
+        if (
+          value === null ||
+          value === undefined
+        ) {
+
           return "";
+
         }
 
         return String(value)
-          .replace(/&/g, "&amp;")
 
-          .replace(/</g, "&lt;")
+          .replace(
+            /&/g,
+            "&"
+          )
 
-          .replace(/>/g, "&gt;")
+          .replace(
+            /</g,
+            "<"
+          )
 
-          .replace(/"/g, "&quot;")
+          .replace(
+            />/g,
+            ">"
+          )
 
-          .replace(/'/g, "&#039;");
+          .replace(
+            /"/g,
+            """
+          )
+
+          .replace(
+            /'/g,
+            "'"
+          );
+
       }
 
       function formatDate(value) {
+
         if (!value) {
+
           return "-";
+
         }
 
-        const date = new Date(value);
+        const date =
+          new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
+        if (
+          Number.isNaN(
+            date.getTime()
+          )
+        ) {
+
           return String(value);
+
         }
 
-        return date.toLocaleString("ja-JP", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-        });
+        return date.toLocaleString(
+          "ja-JP",
+          {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit"
+          }
+        );
+
       }
 
       function timestamp(value) {
+
         if (!value) {
+
           return 0;
+
         }
 
-        const time = new Date(value).getTime();
+        const time =
+          new Date(value)
+            .getTime();
 
-        return Number.isNaN(time) ? 0 : time;
+        return Number.isNaN(time)
+          ? 0
+          : time;
+
       }
 
       function formatPrice(value) {
-        const number = Number(value);
 
-        if (Number.isNaN(number)) {
+        const number =
+          Number(value);
+
+        if (
+          Number.isNaN(number)
+        ) {
+
           return value || "-";
+
         }
 
-        return new Intl.NumberFormat("ja-JP").format(number) + "円";
+        return new Intl.NumberFormat(
+          "ja-JP"
+        ).format(number) + "円";
+
       }
 
       /* =========================================================
-   Monitor configuration
-   ========================================================= */
+         Monitor configuration
+         ========================================================= */
 
       async function loadMonitors() {
-        const response = await fetch("./monitors.json?t=" + Date.now());
+
+        const response =
+          await fetch(
+            "./monitors.json?t=" +
+            Date.now()
+          );
 
         if (!response.ok) {
+
           throw new Error(
-            "monitors.json の取得に失敗しました: HTTP " + response.status,
+            "monitors.json の取得に失敗しました: HTTP " +
+            response.status
           );
+
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
-        if (Array.isArray(data)) {
-          monitors = data;
-        } else if (data && Array.isArray(data.monitors)) {
-          monitors = data.monitors;
+        if (
+          Array.isArray(data)
+        ) {
+
+          monitors =
+            data;
+
+        } else if (
+          data &&
+          Array.isArray(
+            data.monitors
+          )
+        ) {
+
+          monitors =
+            data.monitors;
+
         } else {
-          throw new Error("monitors.json の形式が正しくありません");
+
+          throw new Error(
+            "monitors.json の形式が正しくありません"
+          );
+
         }
 
-        if (monitors.length === 0) {
-          throw new Error("監視対象がありません");
+        if (
+          monitors.length === 0
+        ) {
+
+          throw new Error(
+            "監視対象がありません"
+          );
+
         }
+
       }
 
-      function getMonitorName(monitor) {
+      function getMonitorName(
+        monitor
+      ) {
+
         return (
           monitor.name ||
           monitor.title ||
@@ -880,192 +1207,431 @@
           monitor.slug ||
           "Monitor"
         );
+
       }
 
-      function getMonitorCollection(monitor) {
-        return monitor.collection || monitor.slug || monitor.name;
-      }
+      function getMonitorCollection(
+        monitor
+      ) {
 
-      function getProductsPath(monitor) {
-        if (monitor.products_path) {
-          return monitor.products_path;
-        }
-
-        const collection = getMonitorCollection(monitor);
-
-        return "./data/" + encodeURIComponent(collection) + "/products.json";
-      }
-
-      /* =========================================================
-   Tabs
-   ========================================================= */
-
-      function renderTabs() {
-        tabsEl.innerHTML = "";
-
-        monitors.forEach((monitor, index) => {
-          const button = document.createElement("button");
-
-          button.className = "tab" + (index === 0 ? " active" : "");
-
-          button.textContent = getMonitorName(monitor);
-
-          button.addEventListener("click", () => {
-            document
-              .querySelectorAll(".tab")
-              .forEach((tab) => tab.classList.remove("active"));
-
-            button.classList.add("active");
-
-            loadMonitor(monitor);
-          });
-
-          tabsEl.appendChild(button);
-        });
-      }
-
-      /* =========================================================
-   Products JSON
-   ========================================================= */
-
-      async function loadProducts(monitor) {
-        const path = getProductsPath(monitor);
-
-        const response = await fetch(
-          path + (path.includes("?") ? "&" : "?") + "t=" + Date.now(),
+        return (
+          monitor.collection ||
+          monitor.slug ||
+          monitor.name
         );
 
-        if (!response.ok) {
-          throw new Error(
-            "products.json の取得に失敗しました: HTTP " + response.status,
-          );
+      }
+
+      function getProductsPath(
+        monitor
+      ) {
+
+        if (
+          monitor.products_path
+        ) {
+
+          return monitor.products_path;
+
         }
 
-        const data = await response.json();
+        const collection =
+          getMonitorCollection(
+            monitor
+          );
+
+        return (
+          "./data/" +
+          encodeURIComponent(
+            collection
+          ) +
+          "/products.json"
+        );
+
+      }
+
+      /* =========================================================
+         Tabs
+         ========================================================= */
+
+      function renderTabs() {
+
+        tabsEl.innerHTML =
+          "";
+
+        monitors.forEach(
+          (
+            monitor,
+            index
+          ) => {
+
+            const button =
+              document.createElement(
+                "button"
+              );
+
+            button.className =
+              "tab" +
+              (
+                index === 0
+                  ? " active"
+                  : ""
+              );
+
+            button.textContent =
+              getMonitorName(
+                monitor
+              );
+
+            button.addEventListener(
+              "click",
+              () => {
+
+                document
+                  .querySelectorAll(
+                    ".tab"
+                  )
+                  .forEach(
+                    tab =>
+                      tab.classList.remove(
+                        "active"
+                      )
+                  );
+
+                button.classList.add(
+                  "active"
+                );
+
+                loadMonitor(
+                  monitor
+                );
+
+              }
+            );
+
+            tabsEl.appendChild(
+              button
+            );
+
+          }
+        );
+
+      }
+
+      /* =========================================================
+         Products JSON
+         ========================================================= */
+
+      async function loadProducts(
+        monitor
+      ) {
+
+        const path =
+          getProductsPath(
+            monitor
+          );
+
+        const response =
+          await fetch(
+            path +
+            (
+              path.includes("?")
+                ? "&"
+                : "?"
+            ) +
+            "t=" +
+            Date.now()
+          );
+
+        if (!response.ok) {
+
+          throw new Error(
+            "products.json の取得に失敗しました: HTTP " +
+            response.status
+          );
+
+        }
+
+        const data =
+          await response.json();
 
         /*
          * 配列形式
          */
 
-        if (Array.isArray(data)) {
+        if (
+          Array.isArray(data)
+        ) {
+
           return data;
+
         }
 
         /*
          * Shopify形式
          */
 
-        if (data && Array.isArray(data.products)) {
+        if (
+          data &&
+          Array.isArray(
+            data.products
+          )
+        ) {
+
           return data.products;
+
         }
 
-        throw new Error("products.json の形式が正しくありません");
+        throw new Error(
+          "products.json の形式が正しくありません"
+        );
+
       }
 
       /* =========================================================
-   Product helpers
-   ========================================================= */
+         Product helpers
+         ========================================================= */
 
-      function getVariant(product) {
+      function getVariant(
+        product
+      ) {
+
         if (
           !product ||
-          !Array.isArray(product.variants) ||
+          !Array.isArray(
+            product.variants
+          ) ||
           product.variants.length === 0
         ) {
+
           return null;
+
         }
 
         return product.variants[0];
+
       }
 
-      function getSku(product) {
-        const variant = getVariant(product);
+      function getSku(
+        product
+      ) {
 
-        return variant?.sku || product.sku || "";
+        const variant =
+          getVariant(
+            product
+          );
+
+        return (
+          variant?.sku ||
+          product.sku ||
+          ""
+        );
+
       }
 
-      function getPrice(product) {
-        const variant = getVariant(product);
+      function getPrice(
+        product
+      ) {
 
-        const value = Number(variant?.price ?? product.price ?? 0);
+        const variant =
+          getVariant(
+            product
+          );
 
-        return Number.isNaN(value) ? 0 : value;
+        const value =
+          Number(
+            variant?.price ??
+            product.price ??
+            0
+          );
+
+        return Number.isNaN(value)
+          ? 0
+          : value;
+
       }
 
-      function isAvailable(product) {
-        if (Array.isArray(product.variants)) {
-          return product.variants.some((variant) => variant.available === true);
+      function isAvailable(
+        product
+      ) {
+
+        if (
+          Array.isArray(
+            product.variants
+          )
+        ) {
+
+          return product.variants.some(
+            variant =>
+              variant.available === true
+          );
+
         }
 
-        if (typeof product.available === "boolean") {
+        if (
+          typeof product.available ===
+          "boolean"
+        ) {
+
           return product.available;
+
         }
 
         return false;
+
       }
 
-      function getCreatedAt(product) {
-        const variant = getVariant(product);
+      function getCreatedAt(
+        product
+      ) {
 
-        return variant?.created_at || product.created_at || "";
+        const variant =
+          getVariant(
+            product
+          );
+
+        return (
+          variant?.created_at ||
+          product.created_at ||
+          ""
+        );
+
       }
 
-      function getUpdatedAt(product) {
-        const variant = getVariant(product);
+      function getUpdatedAt(
+        product
+      ) {
 
-        return variant?.updated_at || product.updated_at || "";
+        const variant =
+          getVariant(
+            product
+          );
+
+        return (
+          variant?.updated_at ||
+          product.updated_at ||
+          ""
+        );
+
       }
 
-      function getImage(product) {
-        if (Array.isArray(product.images) && product.images.length > 0) {
-          const image = product.images[0];
+      function getImage(
+        product
+      ) {
 
-          if (typeof image === "string") {
+        if (
+          Array.isArray(
+            product.images
+          ) &&
+          product.images.length > 0
+        ) {
+
+          const image =
+            product.images[0];
+
+          if (
+            typeof image ===
+            "string"
+          ) {
+
             return image;
+
           }
 
-          return image.src || image.url || "";
+          return (
+            image.src ||
+            image.url ||
+            ""
+          );
+
         }
 
-        if (typeof product.image === "string") {
+        if (
+          typeof product.image ===
+          "string"
+        ) {
+
           return product.image;
+
         }
 
-        if (product.image && typeof product.image === "object") {
-          return product.image.src || product.image.url || "";
+        if (
+          product.image &&
+          typeof product.image ===
+            "object"
+        ) {
+
+          return (
+            product.image.src ||
+            product.image.url ||
+            ""
+          );
+
         }
 
         return "";
+
       }
 
-      function getProductUrl(product) {
-        if (product.url) {
+      function getProductUrl(
+        product
+      ) {
+
+        if (
+          product.url
+        ) {
+
           return product.url;
+
         }
 
-        if (product.handle) {
+        if (
+          product.handle
+        ) {
+
           return (
             "https://findmestore.thinkr.jp/products/" +
-            encodeURIComponent(product.handle)
+            encodeURIComponent(
+              product.handle
+            )
           );
+
         }
 
         return "";
+
       }
 
-      function getTags(product) {
-        if (Array.isArray(product.tags)) {
+      function getTags(
+        product
+      ) {
+
+        if (
+          Array.isArray(
+            product.tags
+          )
+        ) {
+
           return product.tags;
+
         }
 
-        if (typeof product.tags === "string") {
+        if (
+          typeof product.tags ===
+          "string"
+        ) {
+
           return product.tags
             .split(",")
-            .map((tag) => tag.trim())
+            .map(
+              tag =>
+                tag.trim()
+            )
             .filter(Boolean);
+
         }
 
         return [];
+
       }
 
       /*
@@ -1078,75 +1644,156 @@
        * の順で取得
        */
 
-      function getCategories(product) {
-        const category =
-          product.category || product.product_type || product.type || "";
+      function getCategories(
+        product
+      ) {
 
-        if (Array.isArray(category)) {
-          return category;
+        const category =
+          product.category ||
+          product.product_type ||
+          product.type ||
+          "";
+
+        if (
+          Array.isArray(category)
+        ) {
+
+          return category
+            .map(
+              value =>
+                String(value).trim()
+            )
+            .filter(Boolean);
+
         }
 
-        if (typeof category === "string" && category.trim()) {
-          return [category.trim()];
+        if (
+          typeof category ===
+          "string" &&
+          category.trim()
+        ) {
+
+          return [
+            category.trim()
+          ];
+
         }
 
         return [];
+
       }
 
       /* =========================================================
-   Filter values
-   ========================================================= */
+         Filter values
+         ========================================================= */
 
       function collectFilterValues() {
-        const tags = new Set();
 
-        const categories = new Set();
+        const tags =
+          new Set();
 
-        originalProducts.forEach((product) => {
-          getTags(product).forEach((tag) => tags.add(tag));
+        const categories =
+          new Set();
 
-          getCategories(product).forEach((category) =>
-            categories.add(category),
-          );
-        });
+        originalProducts.forEach(
+          product => {
+
+            getTags(product)
+              .forEach(
+                tag =>
+                  tags.add(tag)
+              );
+
+            getCategories(product)
+              .forEach(
+                category =>
+                  categories.add(
+                    category
+                  )
+              );
+
+          }
+        );
 
         return {
-          tags: Array.from(tags).sort((a, b) => a.localeCompare(b, "ja")),
+          tags:
+            Array.from(tags).sort(
+              (a, b) =>
+                a.localeCompare(
+                  b,
+                  "ja"
+                )
+            ),
 
-          categories: Array.from(categories).sort((a, b) =>
-            a.localeCompare(b, "ja"),
-          ),
+          categories:
+            Array.from(
+              categories
+            ).sort(
+              (a, b) =>
+                a.localeCompare(
+                  b,
+                  "ja"
+                )
+            )
         };
+
       }
 
       /* =========================================================
-   Filter buttons
-   ========================================================= */
+         Filter buttons
+         ========================================================= */
 
-      function renderFilterButton(container, label, active, callback) {
-        const button = document.createElement("button");
+      function renderFilterButton(
+        container,
+        label,
+        active,
+        callback
+      ) {
 
-        button.type = "button";
+        const button =
+          document.createElement(
+            "button"
+          );
 
-        button.className = "filter-button" + (active ? " active" : "");
+        button.type =
+          "button";
 
-        button.textContent = label;
+        button.className =
+          "filter-button" +
+          (
+            active
+              ? " active"
+              : ""
+          );
 
-        button.addEventListener("click", callback);
+        button.textContent =
+          label;
 
-        container.appendChild(button);
+        button.addEventListener(
+          "click",
+          callback
+        );
+
+        container.appendChild(
+          button
+        );
+
       }
 
       /* =========================================================
-   Render filters
-   ========================================================= */
+         Render filters
+         ========================================================= */
 
       function renderFilters() {
-        availabilityFiltersEl.innerHTML = "";
 
-        categoryFiltersEl.innerHTML = "";
+        availabilityFiltersEl.innerHTML =
+          "";
 
-        tagFiltersEl.innerHTML = "";
+        categoryFiltersEl.innerHTML =
+          "";
+
+        tagFiltersEl.innerHTML =
+          "";
 
         /*
          * Availability
@@ -1155,120 +1802,254 @@
         renderFilterButton(
           availabilityFiltersEl,
           "販売中",
-          selectedAvailability.has("available"),
+          selectedAvailability.has(
+            "available"
+          ),
           () => {
-            if (selectedAvailability.has("available")) {
-              selectedAvailability.delete("available");
+
+            if (
+              selectedAvailability.has(
+                "available"
+              )
+            ) {
+
+              selectedAvailability.delete(
+                "available"
+              );
+
             } else {
-              selectedAvailability.add("available");
+
+              selectedAvailability.add(
+                "available"
+              );
+
             }
 
             renderFilters();
             renderProducts();
-          },
+
+          }
         );
 
         renderFilterButton(
           availabilityFiltersEl,
           "Sold out",
-          selectedAvailability.has("soldout"),
+          selectedAvailability.has(
+            "soldout"
+          ),
           () => {
-            if (selectedAvailability.has("soldout")) {
-              selectedAvailability.delete("soldout");
+
+            if (
+              selectedAvailability.has(
+                "soldout"
+              )
+            ) {
+
+              selectedAvailability.delete(
+                "soldout"
+              );
+
             } else {
-              selectedAvailability.add("soldout");
+
+              selectedAvailability.add(
+                "soldout"
+              );
+
             }
 
             renderFilters();
             renderProducts();
-          },
+
+          }
         );
 
         /*
          * Categories
          */
 
-        const { categories, tags } = collectFilterValues();
+        const {
+          categories,
+          tags
+        } =
+          collectFilterValues();
 
-        if (categories.length === 0) {
-          const empty = document.createElement("span");
+        if (
+          categories.length === 0
+        ) {
 
-          empty.textContent = "カテゴリなし";
-
-          empty.style.color = "#999";
-
-          empty.style.fontSize = "12px";
-
-          categoryFiltersEl.appendChild(empty);
-        } else {
-          categories.forEach((category) => {
-            renderFilterButton(
-              categoryFiltersEl,
-              category,
-              selectedCategories.has(category),
-              () => {
-                if (selectedCategories.has(category)) {
-                  selectedCategories.delete(category);
-                } else {
-                  selectedCategories.add(category);
-                }
-
-                renderFilters();
-                renderProducts();
-              },
+          const empty =
+            document.createElement(
+              "span"
             );
-          });
+
+          empty.textContent =
+            "カテゴリなし";
+
+          empty.style.color =
+            "#999";
+
+          empty.style.fontSize =
+            "12px";
+
+          categoryFiltersEl.appendChild(
+            empty
+          );
+
+        } else {
+
+          categories.forEach(
+            category => {
+
+              renderFilterButton(
+                categoryFiltersEl,
+                category,
+                selectedCategories.has(
+                  category
+                ),
+                () => {
+
+                  if (
+                    selectedCategories.has(
+                      category
+                    )
+                  ) {
+
+                    selectedCategories.delete(
+                      category
+                    );
+
+                  } else {
+
+                    selectedCategories.add(
+                      category
+                    );
+
+                  }
+
+                  renderFilters();
+                  renderProducts();
+
+                }
+              );
+
+            }
+          );
+
         }
 
         /*
          * Tags
          */
 
-        if (tags.length === 0) {
-          const empty = document.createElement("span");
+        if (
+          tags.length === 0
+        ) {
 
-          empty.textContent = "タグなし";
+          const empty =
+            document.createElement(
+              "span"
+            );
 
-          empty.style.color = "#999";
+          empty.textContent =
+            "タグなし";
 
-          empty.style.fontSize = "12px";
+          empty.style.color =
+            "#999";
 
-          tagFiltersEl.appendChild(empty);
+          empty.style.fontSize =
+            "12px";
+
+          tagFiltersEl.appendChild(
+            empty
+          );
+
         } else {
-          tags.forEach((tag) => {
-            renderFilterButton(tagFiltersEl, tag, selectedTags.has(tag), () => {
-              if (selectedTags.has(tag)) {
-                selectedTags.delete(tag);
-              } else {
-                selectedTags.add(tag);
-              }
 
-              renderFilters();
-              renderProducts();
-            });
-          });
+          tags.forEach(
+            tag => {
+
+              renderFilterButton(
+                tagFiltersEl,
+                tag,
+                selectedTags.has(
+                  tag
+                ),
+                () => {
+
+                  if (
+                    selectedTags.has(
+                      tag
+                    )
+                  ) {
+
+                    selectedTags.delete(
+                      tag
+                    );
+
+                  } else {
+
+                    selectedTags.add(
+                      tag
+                    );
+
+                  }
+
+                  renderFilters();
+                  renderProducts();
+
+                }
+              );
+
+            }
+          );
+
         }
+
       }
 
       /* =========================================================
-   Filtering
-   ========================================================= */
+         Filtering
+         ========================================================= */
 
-      function matchesFilter(product) {
+      function matchesFilter(
+        product
+      ) {
+
         /*
          * Search
          */
 
-        const keyword = searchEl.value.trim().toLowerCase();
+        const keyword =
+          searchEl.value
+            .trim()
+            .toLowerCase();
 
         if (keyword) {
-          const title = String(product.title || "").toLowerCase();
 
-          const sku = getSku(product).toLowerCase();
+          const title =
+            String(
+              product.title ||
+              ""
+            ).toLowerCase();
 
-          if (!title.includes(keyword) && !sku.includes(keyword)) {
+          const sku =
+            getSku(
+              product
+            ).toLowerCase();
+
+          if (
+            !title.includes(
+              keyword
+            ) &&
+            !sku.includes(
+              keyword
+            )
+          ) {
+
             return false;
+
           }
+
         }
 
         /*
@@ -1277,14 +2058,30 @@
          * 複数選択時はOR
          */
 
-        if (selectedAvailability.size > 0) {
-          const available = isAvailable(product);
+        if (
+          selectedAvailability.size > 0
+        ) {
 
-          const key = available ? "available" : "soldout";
+          const available =
+            isAvailable(
+              product
+            );
 
-          if (!selectedAvailability.has(key)) {
+          const key =
+            available
+              ? "available"
+              : "soldout";
+
+          if (
+            !selectedAvailability.has(
+              key
+            )
+          ) {
+
             return false;
+
           }
+
         }
 
         /*
@@ -1293,16 +2090,29 @@
          * 複数選択時はOR
          */
 
-        if (selectedCategories.size > 0) {
-          const categories = getCategories(product);
+        if (
+          selectedCategories.size > 0
+        ) {
 
-          const matched = categories.some((category) =>
-            selectedCategories.has(category),
-          );
+          const categories =
+            getCategories(
+              product
+            );
+
+          const matched =
+            categories.some(
+              category =>
+                selectedCategories.has(
+                  category
+                )
+            );
 
           if (!matched) {
+
             return false;
+
           }
+
         }
 
         /*
@@ -1311,305 +2121,670 @@
          * 複数選択時はOR
          */
 
-        if (selectedTags.size > 0) {
-          const tags = getTags(product);
+        if (
+          selectedTags.size > 0
+        ) {
 
-          const matched = tags.some((tag) => selectedTags.has(tag));
+          const tags =
+            getTags(
+              product
+            );
+
+          const matched =
+            tags.some(
+              tag =>
+                selectedTags.has(
+                  tag
+                )
+            );
 
           if (!matched) {
+
             return false;
+
           }
+
         }
 
         return true;
+
       }
 
       /* =========================================================
-   Sorting
-   ========================================================= */
+         Sorting
+         ========================================================= */
 
-      function sortProducts(products) {
-        const sort = priceSortEl.value;
+      function sortProducts(
+        products
+      ) {
 
-        if (sort === "price_asc") {
-          products.sort((a, b) => getPrice(a) - getPrice(b));
-        }
+        const sort =
+          priceSortEl.value;
 
-        if (sort === "price_desc") {
-          products.sort((a, b) => getPrice(b) - getPrice(a));
-        }
+        if (
+          sort === "price_asc"
+        ) {
 
-        if (sort === "created_desc") {
           products.sort(
-            (a, b) => timestamp(getCreatedAt(b)) - timestamp(getCreatedAt(a)),
+            (a, b) =>
+              getPrice(a) -
+              getPrice(b)
           );
+
         }
 
-        if (sort === "created_asc") {
+        if (
+          sort === "price_desc"
+        ) {
+
           products.sort(
-            (a, b) => timestamp(getCreatedAt(a)) - timestamp(getCreatedAt(b)),
+            (a, b) =>
+              getPrice(b) -
+              getPrice(a)
           );
+
         }
 
-        if (sort === "updated_desc") {
+        if (
+          sort === "created_desc"
+        ) {
+
           products.sort(
-            (a, b) => timestamp(getUpdatedAt(b)) - timestamp(getUpdatedAt(a)),
+            (a, b) =>
+              timestamp(
+                getCreatedAt(b)
+              ) -
+              timestamp(
+                getCreatedAt(a)
+              )
           );
+
         }
 
-        if (sort === "updated_asc") {
+        if (
+          sort === "created_asc"
+        ) {
+
           products.sort(
-            (a, b) => timestamp(getUpdatedAt(a)) - timestamp(getUpdatedAt(b)),
+            (a, b) =>
+              timestamp(
+                getCreatedAt(a)
+              ) -
+              timestamp(
+                getCreatedAt(b)
+              )
           );
+
+        }
+
+        if (
+          sort === "updated_desc"
+        ) {
+
+          products.sort(
+            (a, b) =>
+              timestamp(
+                getUpdatedAt(b)
+              ) -
+              timestamp(
+                getUpdatedAt(a)
+              )
+          );
+
+        }
+
+        if (
+          sort === "updated_asc"
+        ) {
+
+          products.sort(
+            (a, b) =>
+              timestamp(
+                getUpdatedAt(a)
+              ) -
+              timestamp(
+                getUpdatedAt(b)
+              )
+          );
+
         }
 
         return products;
+
       }
 
       /* =========================================================
-   Render products
-   ========================================================= */
+         Render products
+         ========================================================= */
 
       function renderProducts() {
-        productsEl.innerHTML = "";
 
-        productsEl.classList.toggle("list-view", viewMode === "list");
+        productsEl.innerHTML =
+          "";
 
-        let products = originalProducts.filter(matchesFilter);
+        productsEl.classList.toggle(
+          "list-view",
+          viewMode === "list"
+        );
 
-        products = sortProducts(products);
+        let products =
+          originalProducts.filter(
+            matchesFilter
+          );
 
-        if (products.length === 0) {
+        products =
+          sortProducts(
+            products
+          );
+
+        if (
+          products.length === 0
+        ) {
+
           productsEl.innerHTML =
-            '<div class="loading">' + "該当する商品がありません。" + "</div>";
+            '<div class="loading">' +
+            '該当する商品がありません。' +
+            '</div>';
 
-          updateStatus(products.length);
+          updateStatus(
+            products.length
+          );
 
           return;
+
         }
 
-        products.forEach((product) => {
-          const card = document.createElement("div");
+        products.forEach(
+          product => {
 
-          card.className = "product";
+            const card =
+              document.createElement(
+                "div"
+              );
 
-          const image = getImage(product);
+            card.className =
+              "product";
 
-          const available = isAvailable(product);
+            const image =
+              getImage(
+                product
+              );
 
-          const sku = getSku(product);
+            const available =
+              isAvailable(
+                product
+              );
 
-          const price = getPrice(product);
+            const sku =
+              getSku(
+                product
+              );
 
-          const createdAt = getCreatedAt(product);
+            const price =
+              getPrice(
+                product
+              );
 
-          const updatedAt = getUpdatedAt(product);
+            const createdAt =
+              getCreatedAt(
+                product
+              );
 
-          const url = getProductUrl(product);
+            const updatedAt =
+              getUpdatedAt(
+                product
+              );
 
-          const tags = getTags(product);
+            const url =
+              getProductUrl(
+                product
+              );
 
-          /*
-           * Image
-           */
+            const tags =
+              getTags(
+                product
+              );
 
-          if (image) {
-            const img = document.createElement("img");
+            const categories =
+              getCategories(
+                product
+              );
 
-            img.className = "product-image";
+            /*
+             * Image
+             */
 
-            img.src = image;
+            if (image) {
 
-            img.alt = product.title || "";
+              const img =
+                document.createElement(
+                  "img"
+                );
 
-            img.loading = "lazy";
+              img.className =
+                "product-image";
 
-            img.onerror = function () {
-              this.style.display = "none";
-            };
+              img.src =
+                image;
 
-            card.appendChild(img);
+              img.alt =
+                product.title ||
+                "";
+
+              img.loading =
+                "lazy";
+
+              img.onerror =
+                function() {
+
+                  this.style.display =
+                    "none";
+
+                };
+
+              card.appendChild(
+                img
+              );
+
+            }
+
+            /*
+             * Body
+             */
+
+            const body =
+              document.createElement(
+                "div"
+              );
+
+            body.className =
+              "product-body";
+
+            /*
+             * Product info
+             */
+
+            const info =
+              document.createElement(
+                "div"
+              );
+
+            info.className =
+              "product-info";
+
+            /*
+             * Title
+             */
+
+            const titleEl =
+              document.createElement(
+                "div"
+              );
+
+            titleEl.className =
+              "product-title";
+
+            titleEl.textContent =
+              product.title ||
+              "名称未設定";
+
+            info.appendChild(
+              titleEl
+            );
+
+            /*
+             * SKU
+             */
+
+            if (sku) {
+
+              const skuEl =
+                document.createElement(
+                  "div"
+                );
+
+              skuEl.className =
+                "sku";
+
+              skuEl.innerHTML =
+                "<strong>SKU:</strong> " +
+                escapeHtml(
+                  sku
+                );
+
+              info.appendChild(
+                skuEl
+              );
+
+            }
+
+            body.appendChild(
+              info
+            );
+
+            /*
+             * Price
+             */
+
+            const priceEl =
+              document.createElement(
+                "div"
+              );
+
+            priceEl.className =
+              "product-price";
+
+            priceEl.textContent =
+              formatPrice(
+                price
+              );
+
+            body.appendChild(
+              priceEl
+            );
+
+            /*
+             * Product meta
+             */
+
+            const meta =
+              document.createElement(
+                "div"
+              );
+
+            meta.className =
+              "product-meta";
+
+            /*
+             * Category
+
+             */
+
+            if (
+              categories.length > 0
+            ) {
+
+              const categoriesEl =
+                document.createElement(
+                  "div"
+                );
+
+              categoriesEl.className =
+                "categories";
+
+              categories.forEach(
+                category => {
+
+                  const categoryEl =
+                    document.createElement(
+                      "span"
+                    );
+
+                  categoryEl.className =
+                    "category";
+
+                  categoryEl.textContent =
+                    category;
+
+                  categoriesEl.appendChild(
+                    categoryEl
+                  );
+
+                }
+              );
+
+              meta.appendChild(
+                categoriesEl
+              );
+
+            }
+
+            /*
+             * Tags
+             */
+
+            if (
+              tags.length > 0
+            ) {
+
+              const tagsEl =
+                document.createElement(
+                  "div"
+                );
+
+              tagsEl.className =
+                "tags";
+
+              tags.forEach(
+                tag => {
+
+                  const tagEl =
+                    document.createElement(
+                      "span"
+                    );
+
+                  tagEl.className =
+                    "tag";
+
+                  tagEl.textContent =
+                    tag;
+
+                  tagsEl.appendChild(
+                    tagEl
+                  );
+
+                }
+              );
+
+              meta.appendChild(
+                tagsEl
+              );
+
+            }
+
+            body.appendChild(
+              meta
+            );
+
+            /*
+             * Dates
+             */
+
+            const dates =
+              document.createElement(
+                "div"
+              );
+
+            dates.className =
+              "product-dates";
+
+            const createdEl =
+              document.createElement(
+                "div"
+              );
+
+            createdEl.className =
+              "date";
+
+            createdEl.innerHTML =
+              "<strong>作成:</strong> " +
+              escapeHtml(
+                formatDate(
+                  createdAt
+                )
+              );
+
+            dates.appendChild(
+              createdEl
+            );
+
+            const updatedEl =
+              document.createElement(
+                "div"
+              );
+
+            updatedEl.className =
+              "date";
+
+            updatedEl.innerHTML =
+              "<strong>更新:</strong> " +
+              escapeHtml(
+                formatDate(
+                  updatedAt
+                )
+              );
+
+            dates.appendChild(
+              updatedEl
+            );
+
+            body.appendChild(
+              dates
+            );
+
+            /*
+             * Availability
+             */
+
+            const availabilityEl =
+              document.createElement(
+                "div"
+              );
+
+            availabilityEl.className =
+              "availability " +
+              (
+                available
+                  ? "available"
+                  : "soldout"
+              );
+
+            availabilityEl.textContent =
+              available
+                ? "販売中"
+                : "Sold out";
+
+            body.appendChild(
+              availabilityEl
+            );
+
+            /*
+             * Product link
+             */
+
+            if (url) {
+
+              const link =
+                document.createElement(
+                  "a"
+                );
+
+              link.className =
+                "product-link";
+
+              link.href =
+                url;
+
+              link.target =
+                "_blank";
+
+              link.rel =
+                "noopener noreferrer";
+
+              link.textContent =
+                "商品ページ →";
+
+              body.appendChild(
+                link
+              );
+
+            }
+
+            card.appendChild(
+              body
+            );
+
+            productsEl.appendChild(
+              card
+            );
+
           }
+        );
 
-          /*
-           * Body
-           */
+        updateStatus(
+          products.length
+        );
 
-          const body = document.createElement("div");
-
-          body.className = "product-body";
-
-          /*
-           * Availability
-           */
-
-          const availabilityEl = document.createElement("div");
-
-          availabilityEl.className =
-            "availability " + (available ? "available" : "soldout");
-
-          availabilityEl.textContent = available ? "販売中" : "Sold out";
-
-          body.appendChild(availabilityEl);
-
-          /*
-           * Title
-           */
-
-          const titleEl = document.createElement("div");
-
-          titleEl.className = "product-title";
-
-          titleEl.textContent = product.title || "名称未設定";
-
-          body.appendChild(titleEl);
-
-          /*
-           * Price
-           */
-
-          const priceEl = document.createElement("div");
-
-          priceEl.className = "product-price";
-
-          priceEl.textContent = formatPrice(price);
-
-          body.appendChild(priceEl);
-
-          /*
-           * SKU
-           */
-
-          if (sku) {
-            const skuEl = document.createElement("div");
-
-            skuEl.className = "sku";
-
-            skuEl.innerHTML = "<strong>SKU:</strong> " + escapeHtml(sku);
-
-            body.appendChild(skuEl);
-          }
-
-          /*
-           * Created
-           */
-
-          const createdEl = document.createElement("div");
-
-          createdEl.className = "date";
-
-          createdEl.innerHTML =
-            "<strong>作成:</strong> " + escapeHtml(formatDate(createdAt));
-
-          body.appendChild(createdEl);
-
-          /*
-           * Updated
-           */
-
-          const updatedEl = document.createElement("div");
-
-          updatedEl.className = "date";
-
-          updatedEl.innerHTML =
-            "<strong>更新:</strong> " + escapeHtml(formatDate(updatedAt));
-
-          body.appendChild(updatedEl);
-
-          /*
-           * Tags
-           */
-
-          if (tags.length > 0) {
-            const tagsEl = document.createElement("div");
-
-            tagsEl.className = "tags";
-
-            tags.forEach((tag) => {
-              const tagEl = document.createElement("span");
-
-              tagEl.className = "tag";
-
-              tagEl.textContent = tag;
-
-              tagsEl.appendChild(tagEl);
-            });
-
-            body.appendChild(tagsEl);
-          }
-
-          /*
-           * Product link
-           */
-
-          if (url) {
-            const link = document.createElement("a");
-
-            link.className = "product-link";
-
-            link.href = url;
-
-            link.target = "_blank";
-
-            link.rel = "noopener noreferrer";
-
-            link.textContent = "商品ページ →";
-
-            body.appendChild(link);
-          }
-
-          card.appendChild(body);
-
-          productsEl.appendChild(card);
-        });
-
-        updateStatus(products.length);
       }
 
       /* =========================================================
-   Status
-   ========================================================= */
+         Status
+         ========================================================= */
 
-      function updateStatus(displayedCount) {
-        const total = originalProducts.length;
+      function updateStatus(
+        displayedCount
+      ) {
 
-        const available = originalProducts.filter((product) =>
-          isAvailable(product),
-        ).length;
+        const total =
+          originalProducts.length;
 
-        const soldout = total - available;
+        const available =
+          originalProducts.filter(
+            product =>
+              isAvailable(
+                product
+              )
+          ).length;
+
+        const soldout =
+          total -
+          available;
 
         statusEl.innerHTML =
+
           "<span>商品数: <strong>" +
           total +
           "</strong></span>" +
+
           "<span>表示中: <strong>" +
           displayedCount +
           "</strong></span>" +
+
           "<span>販売中: <strong>" +
           available +
           "</strong></span>" +
+
           "<span>Sold out: <strong>" +
           soldout +
           "</strong></span>";
 
-        statusEl.style.display = "flex";
+        statusEl.style.display =
+          "flex";
+
       }
 
       /* =========================================================
-   Load monitor
-   ========================================================= */
+         Load monitor
+         ========================================================= */
 
-      async function loadMonitor(monitor) {
-        currentMonitor = monitor;
+      async function loadMonitor(
+        monitor
+      ) {
 
-        loadingEl.style.display = "block";
+        currentMonitor =
+          monitor;
 
-        productsEl.innerHTML = "";
+        loadingEl.style.display =
+          "block";
 
-        controlsEl.style.display = "none";
+        productsEl.innerHTML =
+          "";
 
-        statusEl.style.display = "none";
+        controlsEl.style.display =
+          "none";
+
+        statusEl.style.display =
+          "none";
 
         clearError();
 
@@ -1623,109 +2798,186 @@
 
         selectedAvailability.clear();
 
-        searchEl.value = "";
+        searchEl.value =
+          "";
 
-        priceSortEl.value = "default";
+        priceSortEl.value =
+          "default";
 
         try {
-          const products = await loadProducts(monitor);
 
-          originalProducts = Array.isArray(products) ? products : [];
+          const products =
+            await loadProducts(
+              monitor
+            );
+
+          originalProducts =
+            Array.isArray(products)
+              ? products
+              : [];
 
           renderFilters();
 
-          controlsEl.style.display = "block";
+          controlsEl.style.display =
+            "block";
 
           renderProducts();
 
-          lastUpdatedEl.textContent = "最終読み込み: " + formatDate(new Date());
-        } catch (error) {
-          console.error(error);
+          lastUpdatedEl.textContent =
+            "最終読み込み: " +
+            formatDate(
+              new Date()
+            );
 
-          showError(error.message || "データの読み込みに失敗しました");
+        } catch (error) {
+
+          console.error(
+            error
+          );
+
+          showError(
+            error.message ||
+            "データの読み込みに失敗しました"
+          );
+
         } finally {
-          loadingEl.style.display = "none";
+
+          loadingEl.style.display =
+            "none";
+
         }
+
       }
 
       /* =========================================================
-   View switch
-   ========================================================= */
+         View switch
+         ========================================================= */
 
-      cardViewButton.addEventListener("click", () => {
-        viewMode = "card";
+      cardViewButton.addEventListener(
+        "click",
+        () => {
 
-        cardViewButton.classList.add("active");
+          viewMode =
+            "card";
 
-        listViewButton.classList.remove("active");
+          cardViewButton.classList.add(
+            "active"
+          );
 
-        renderProducts();
-      });
+          listViewButton.classList.remove(
+            "active"
+          );
 
-      listViewButton.addEventListener("click", () => {
-        viewMode = "list";
+          renderProducts();
 
-        listViewButton.classList.add("active");
+        }
+      );
 
-        cardViewButton.classList.remove("active");
+      listViewButton.addEventListener(
+        "click",
+        () => {
 
-        renderProducts();
-      });
+          viewMode =
+            "list";
 
-      /* =========================================================
-   Clear filters
-   ========================================================= */
+          listViewButton.classList.add(
+            "active"
+          );
 
-      clearFiltersEl.addEventListener("click", () => {
-        selectedTags.clear();
+          cardViewButton.classList.remove(
+            "active"
+          );
 
-        selectedCategories.clear();
+          renderProducts();
 
-        selectedAvailability.clear();
-
-        searchEl.value = "";
-
-        priceSortEl.value = "default";
-
-        renderFilters();
-
-        renderProducts();
-      });
-
-      /* =========================================================
-   Search
-   ========================================================= */
-
-      searchEl.addEventListener("input", () => {
-        renderProducts();
-      });
+        }
+      );
 
       /* =========================================================
-   Sort
-   ========================================================= */
+         Clear filters
+         ========================================================= */
 
-      priceSortEl.addEventListener("change", () => {
-        renderProducts();
-      });
+      clearFiltersEl.addEventListener(
+        "click",
+        () => {
+
+          selectedTags.clear();
+
+          selectedCategories.clear();
+
+          selectedAvailability.clear();
+
+          searchEl.value =
+            "";
+
+          priceSortEl.value =
+            "default";
+
+          renderFilters();
+
+          renderProducts();
+
+        }
+      );
 
       /* =========================================================
-   Initial
-   ========================================================= */
+         Search
+         ========================================================= */
+
+      searchEl.addEventListener(
+        "input",
+        () => {
+
+          renderProducts();
+
+        }
+      );
+
+      /* =========================================================
+         Sort
+         ========================================================= */
+
+      priceSortEl.addEventListener(
+        "change",
+        () => {
+
+          renderProducts();
+
+        }
+      );
+
+      /* =========================================================
+         Initial
+         ========================================================= */
 
       async function init() {
+
         try {
+
           await loadMonitors();
 
           renderTabs();
 
-          await loadMonitor(monitors[0]);
+          await loadMonitor(
+            monitors[0]
+          );
+
         } catch (error) {
-          console.error(error);
 
-          loadingEl.style.display = "none";
+          console.error(
+            error
+          );
 
-          showError(error.message || "初期化に失敗しました");
+          loadingEl.style.display =
+            "none";
+
+          showError(
+            error.message ||
+            "初期化に失敗しました"
+          );
+
         }
+
       }
 
       init();
