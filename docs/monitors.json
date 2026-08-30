@@ -13,6 +13,41 @@
       "url": "https://findmestore.thinkr.jp/collections/v-w-p/products.json",
       "pages": [1, 2],
       "products_path": "./data/v-w-p/products.json"
+    },
+    {
+      "name": "理芽",
+      "collection": "rim",
+      "url": "https://findmestore.thinkr.jp/collections/rim/products.json",
+      "pages": [1, 2],
+      "products_path": "./data/rim/products.json"
+    },
+    {
+      "name": "花譜",
+      "collection": "kaf",
+      "url": "https://findmestore.thinkr.jp/collections/kaf/products.json",
+      "pages": [1, 2],
+      "products_path": "./data/kaf/products.json"
+    },
+    {
+      "name": "春猿火",
+      "collection": "harusaruhi",
+      "url": "https://findmestore.thinkr.jp/collections/harusaruhi/products.json",
+      "pages": [1, 2],
+      "products_path": "./data/harusaruhi/products.json"
+    },
+    {
+      "name": "幸祜",
+      "collection": "koko",
+      "url": "https://findmestore.thinkr.jp/collections/koko/products.json",
+      "pages": [1, 2],
+      "products_path": "./data/koko/products.json"
+    },
+    {
+      "name": "少女革命計画",
+      "collection": "girlsrevolutionproject",
+      "url": "https://findmestore.thinkr.jp/collections/girlsrevolutionproject/products.json",
+      "pages": [1, 2],
+      "products_path": "./data/girlsrevolutionproject/products.json"
     }
   ]
 }
