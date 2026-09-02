@@ -201,6 +201,24 @@
         gap: 6px;
       }
 
+      .date-range {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .date-range input[type="date"] {
+        width: auto;
+        flex: 1 1 160px;
+        min-width: 160px;
+      }
+
+      .date-range-separator {
+        color: #666;
+        font-size: 13px;
+      }
+
       .filter-button {
         border: 1px solid #ccc;
         padding: 6px 10px;
@@ -927,7 +945,7 @@
 
           <div class="sort-box">
             <select id="sort">
-              <option value="default">指定の並び順</option>
+              <option value="default">並び順(作成日降順)</option>
 
               <option value="created_desc">作成日の降順</option>
 
@@ -963,6 +981,18 @@
         </div>
 
         <div class="filter-panel">
+          <div class="filter-section">
+            <div class="filter-title">作成日</div>
+
+            <div class="date-range">
+              <input id="createdFrom" type="date" aria-label="作成日の開始" />
+
+              <span class="date-range-separator">〜</span>
+
+              <input id="createdTo" type="date" aria-label="作成日の終了" />
+            </div>
+          </div>
+
           <div class="filter-section">
             <div class="filter-title">販売状態</div>
 
@@ -1031,6 +1061,10 @@
       const controlsEl = document.getElementById("controls");
 
       const searchEl = document.getElementById("search");
+
+      const createdFromEl = document.getElementById("createdFrom");
+
+      const createdToEl = document.getElementById("createdTo");
 
       const sortEl = document.getElementById("sort");
 
@@ -1112,6 +1146,38 @@
         const time = new Date(value).getTime();
 
         return Number.isNaN(time) ? 0 : time;
+      }
+
+      function toLocalDateKey(value) {
+        if (!value) {
+          return "";
+        }
+
+        const isoDate = String(value).match(/^(\d{4}-\d{2}-\d{2})/);
+
+        if (isoDate) {
+          return isoDate[1];
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+          return "";
+        }
+
+        const year = date.getFullYear();
+
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+
+        const day = String(date.getDate()).padStart(2, "0");
+
+        return year + "-" + month + "-" + day;
+      }
+
+      function clearCreatedDateRange() {
+        createdFromEl.value = "";
+
+        createdToEl.value = "";
       }
 
       function formatPrice(value) {
@@ -1763,6 +1829,38 @@
           }
         }
 
+        const createdFrom = createdFromEl.value;
+
+        const createdTo = createdToEl.value;
+
+        if (createdFrom || createdTo) {
+          const createdKey = toLocalDateKey(getCreatedAt(product));
+
+          if (!createdKey) {
+            return false;
+          }
+
+          let from = createdFrom;
+
+          let to = createdTo;
+
+          if (from && to && from > to) {
+            const swapped = from;
+
+            from = to;
+
+            to = swapped;
+          }
+
+          if (from && createdKey < from) {
+            return false;
+          }
+
+          if (to && createdKey > to) {
+            return false;
+          }
+        }
+
         if (selectedAvailability.size > 0) {
           const key = isAvailable(product) ? "available" : "soldout";
 
@@ -1804,7 +1902,9 @@
         const sort = sortEl.value;
 
         if (sort === "default") {
-          return products;
+          products.sort(
+            (a, b) => timestamp(getCreatedAt(b)) - timestamp(getCreatedAt(a)),
+          );
         }
 
         if (sort === "created_desc") {
@@ -2180,6 +2280,8 @@
 
         searchEl.value = "";
 
+        clearCreatedDateRange();
+
         sortEl.value = "default";
 
         try {
@@ -2259,6 +2361,8 @@
 
         searchEl.value = "";
 
+        clearCreatedDateRange();
+
         sortEl.value = "default";
 
         renderFilters();
@@ -2270,6 +2374,14 @@
      ========================================================= */
 
       searchEl.addEventListener("input", () => {
+        renderProducts();
+      });
+
+      createdFromEl.addEventListener("change", () => {
+        renderProducts();
+      });
+
+      createdToEl.addEventListener("change", () => {
         renderProducts();
       });
 
