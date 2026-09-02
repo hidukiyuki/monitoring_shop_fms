@@ -1,0 +1,4 @@
+name = 'monitoring-shop-fms-api'
+main = 'src/index.ts'
+compatibility_date = '2026-08-30'
+workers_dev = true
